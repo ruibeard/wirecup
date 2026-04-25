@@ -1,0 +1,17 @@
+n Dashboard  Setup  Rooms  Ballot  Exceptions  Reports
+=
+h UG Ballot Queue
+a 47 households validated  3 pre-allocated  44 in ballot
+-
+g Rank  Household      Rep           Year  Priority  Random  Slot            Status
+  1     The Oaks       Alice Smith   3rd   Standard  8921    10:00 Mon 3 Feb v published
+  2     Cripps Crew    Bob Jones     3rd   Standard  7452    10:30 Mon 3 Feb v published
+  3     KX Collective  Carol White   2nd   Standard  6013    11:00 Mon 3 Feb v published
+  4     Staircase 4    Dan Brown     3rd   Standard  5541    11:30 Mon 3 Feb v published
+  5     The Chapel     Eve Green     2nd   Standard  3209    12:00 Mon 3 Feb v published
+  6     North Court    Frank Black   3rd   Standard  2104    12:30 Mon 3 Feb v published
+-
+r
+  b Regenerate
+  b Email Reps
+  b Export CSV

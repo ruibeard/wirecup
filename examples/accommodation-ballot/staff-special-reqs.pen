@@ -1,0 +1,22 @@
+n Dashboard  Setup  Rooms  Ballot  Exceptions  Reports
+=
+h Special Requirements Review
+a Restricted access — medical evidence visible to authorised staff only
+-
+g Student        Category          Evidence  Reviewer      Status          Action
+  Alice Smith    Mobility          Received  College Nurse v pending       b Review
+  Bob Jones      Mental Health     Missing   —             v amber         b Chase
+  Carol White    Sensory           Received  College Nurse v approved      b Allocate
+  Dan Brown      Chronic Condition Received  Senior Tutor  v pending       b Review
+  Eve Green      Mobility          Received  College Nurse v approved      b Allocate
+-
+r
+  c
+    h Pending
+    t 2
+  c
+    h Approved
+    t 2
+  c
+    h Missing Evidence
+    t 1

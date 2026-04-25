@@ -1,0 +1,21 @@
+n Home About Contact
+=
+h Welcome Back
+t Here's what's happening today
+r
+  c
+    x
+    h Users
+    t 1,204
+  c
+    x
+    h Revenue
+    t $42K
+  c
+    x
+    h Orders
+    t 89
+-
+l New order #1024 from Alice
+l Bob signed up
+l Server alert resolved

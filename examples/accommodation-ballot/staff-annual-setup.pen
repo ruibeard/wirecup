@@ -1,0 +1,40 @@
+n Dashboard  Setup  Rooms  Ballot  Exceptions  Reports
+=
+h Annual Setup 2026-27
+a Configure ballot phases and room stock before opening to students
+r
+  c
+    h UG Ballot
+    t Opens 15 Jan
+    t Closes 29 Jan
+    v pending
+  c
+    h PG Ballot
+    t Opens 22 Jan
+    t Closes 5 Feb
+    v pending
+  c
+    h 4th Year
+    t Opens 8 Feb
+    t Closes 12 Feb
+    v pending
+-
+g Phase  Opens  Closes  Status
+  UG     15 Jan  29 Jan  v pending
+  PG     22 Jan  5 Feb   v pending
+  4th    8 Feb   12 Feb  v pending
+-
+h Room Stock
+r
+  c
+    h Total Rooms
+    t 312
+  c
+    h UG Available
+    t 198
+  c
+    h PG Available
+    t 114
+  c
+    h Under Refurb
+    t 12

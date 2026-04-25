@@ -1,0 +1,131 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap');
+* { box-sizing: border-box; }
+body {
+    font-family: 'Kalam', Comic Sans MS, cursive, sans-serif;
+    background: #1a1a2e;
+    padding: 40px;
+    color: #eaeaea;
+}
+.page {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #16213e;
+    padding: 30px;
+    box-shadow: 2px 3px 10px rgba(0,0,0,0.4);
+    border: 2px solid #333;
+    transform: rotate(-0.2deg);
+}
+.nav {
+    display: flex; gap: 24px; padding: 8px 0;
+    border-bottom: 2px solid #555; margin-bottom: 16px;
+    font-size: 0.95em;
+}
+.nav span { cursor: default; }
+.nav span:hover { text-decoration: underline; }
+.heading {
+    font-size: 1.6em; font-weight: 700; margin: 12px 0 8px;
+    letter-spacing: -0.5px;
+}
+.text { margin: 6px 0; font-size: 0.95em; color: #a0a0a0; }
+.input {
+    border: 2px solid #555; border-radius: 4px;
+    padding: 8px 10px; margin: 6px 0;
+    background: #0f3460; color: #666;
+    font-family: inherit; min-width: 200px; display: inline-block;
+}
+.button {
+    border: 2px solid #777; border-radius: 6px;
+    padding: 8px 18px; margin: 8px 0;
+    background: #e94560; cursor: default;
+    font-family: inherit; display: inline-block;
+    box-shadow: 1px 2px 0 #8b1c2f;
+}
+.button:active { box-shadow: none; transform: translate(1px, 2px); }
+.select {
+    border: 2px solid #555; border-radius: 4px;
+    padding: 8px 28px 8px 10px; margin: 6px 0;
+    background: #0f3460; display: inline-block; position: relative;
+}
+.select::after { content: '▾'; position: absolute; right: 8px; }
+.image {
+    background: #252a40; border: 2px dashed #555;
+    min-height: 80px; min-width: 80px; margin: 6px 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #666; font-size: 0.8em;
+}
+.card {
+    border: 2px solid #444; border-radius: 6px;
+    padding: 14px; margin: 10px 0;
+    background: #16213e; transform: rotate(0.15deg);
+}
+.card:nth-child(even) { transform: rotate(-0.08deg); }
+.row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.list { margin: 4px 0; padding-left: 18px; }
+.list::marker { content: '• '; }
+.divider {
+    border: none; border-top: 2px solid #444;
+    margin: 12px 0; transform: rotate(-0.05deg);
+}
+.thick { border-top-width: 3px; border-color: #444; }
+.placeholder { color: #555; font-style: italic; }
+
+/* Extended elements */
+.table-wrap { margin: 10px 0; overflow-x: auto; }
+.table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.9em;
+}
+.table th, .table td {
+    border: 2px solid #555; padding: 8px 12px;
+    text-align: left;
+}
+.table th { background: #1a1a35; font-weight: 700; }
+.table tr:nth-child(even) { background: #1a1a30; }
+.badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 0.8em; font-weight: 700; border: 2px solid;
+    margin: 2px 4px 2px 0;
+}
+.badge-green { background: #1e3a2f; border-color: #34a853; color: #6dd58c; }
+.badge-amber { background: #3d2e1a; border-color: #f9ab00; color: #f9ab00; }
+.badge-red { background: #3a1a1a; border-color: #ea4335; color: #f28b82; }
+.badge-blue { background: #1a2a4a; border-color: #4285f4; color: #8ab4f8; }
+.badge-grey { background: #2a2a35; border-color: #5f6368; color: #9aa0a6; }
+.alert {
+    padding: 12px 16px; border-radius: 6px; border: 2px solid;
+    margin: 10px 0; font-size: 0.95em;
+}
+.alert-green { background: #1e3a2f; border-color: #34a853; color: #6dd58c; }
+.alert-amber { background: #3d2e1a; border-color: #f9ab00; color: #f9ab00; }
+.alert-red { background: #3a1a1a; border-color: #ea4335; color: #f28b82; }
+.alert-blue { background: #1a2a4a; border-color: #4285f4; color: #8ab4f8; }
+.checkbox {
+    display: flex; align-items: center; gap: 8px;
+    margin: 6px 0; font-size: 0.95em;
+}
+.checkbox-box {
+    width: 18px; height: 18px; border: 2px solid #888;
+    border-radius: 3px; display: inline-block; flex-shrink: 0;
+}
+</style>
+</head><body><div class="page">
+<div class="nav"><span>Home</span><span>About</span><span>Contact</span></div>
+<hr class="divider thick">
+<div class="heading">Welcome Back</div>
+<div class="text">Here's what's happening today</div>
+<div class="row"><div class="card"><div class="image">img</div>
+<div class="heading">Users</div>
+<div class="text">1,204</div></div>
+<div class="card"><div class="image">img</div>
+<div class="heading">Revenue</div>
+<div class="text">$42K</div></div>
+<div class="card"><div class="image">img</div>
+<div class="heading">Orders</div>
+<div class="text">89</div></div></div>
+<hr class="divider">
+<li class="list">New order #1024 from Alice</li>
+<li class="list">Bob signed up</li>
+<li class="list">Server alert resolved</li>
+</div></body></html>

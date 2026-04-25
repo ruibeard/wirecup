@@ -1,0 +1,24 @@
+n Dashboard  Setup  Rooms  Ballot  Exceptions  Reports
+=
+h Admin Override
+a Use for exceptions only — all actions are audited
+-
+c
+  h Exception Type
+  s Split Group  Merge Group  Withdraw Room  Post-10th-Term  Intermit  Other
+-
+c
+  h Household
+  s The Oaks  Cripps Crew  KX Collective  —
+-
+c
+  h Student
+  s Alice Smith  Bob Jones  Carol White  —
+-
+c
+  h Reason
+  i Describe the exception
+-
+r
+  b Submit Override
+  b Cancel

@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+:root {
+  --bg_page: #ffffff;
+  --bg_card: #f8f9fa;
+  --bg_input: #ffffff;
+  --bg_button: #007bff;
+  --bg_image: #e9ecef;
+  --bg_badge_green: #d4edda;
+  --bg_badge_amber: #fff3cd;
+  --bg_badge_red: #f8d7da;
+  --bg_badge_blue: #d1ecf1;
+  --bg_badge_grey: #e2e3e5;
+  --bg_alert_green: #d4edda;
+  --bg_alert_amber: #fff3cd;
+  --bg_alert_red: #f8d7da;
+  --bg_alert_blue: #d1ecf1;
+  --bg_table_header: #e9ecef;
+  --bg_table_alt: #f8f9fa;
+  --text_primary: #212529;
+  --text_secondary: #495057;
+  --text_muted: #adb5bd;
+  --text_placeholder: #ced4da;
+  --text_badge_green: #155724;
+  --text_badge_amber: #856404;
+  --text_badge_red: #721c24;
+  --text_badge_blue: #0c5460;
+  --text_badge_grey: #383d41;
+  --text_alert_green: #155724;
+  --text_alert_amber: #856404;
+  --text_alert_red: #721c24;
+  --text_alert_blue: #0c5460;
+  --border_page: #dee2e6;
+  --border_light: #ced4da;
+  --border_medium: #adb5bd;
+  --border_dark: #495057;
+  --border_card: #dee2e6;
+  --border_image: #adb5bd;
+  --border_badge_green: #c3e6cb;
+  --border_badge_amber: #ffeeba;
+  --border_badge_red: #f5c6cb;
+  --border_badge_blue: #bee5eb;
+  --border_badge_grey: #d6d8db;
+  --border_alert_green: #c3e6cb;
+  --border_alert_amber: #ffeeba;
+  --border_alert_red: #f5c6cb;
+  --border_alert_blue: #bee5eb;
+  --border_checkbox: #adb5bd;
+  --shadow: rgba(0,0,0,0.05);
+  --shadow_button: rgba(0,123,255,0.3);
+  --page_width: 900px;
+  --page_padding: 40px;
+  --card_padding: 20px;
+  --card_margin: 16px 0;
+  --card_radius: 8px;
+  --button_padding: 10px 20px;
+  --button_radius: 6px;
+  --input_padding: 10px 12px;
+  --input_radius: 6px;
+  --image_min_height: 100px;
+  --image_border: solid;
+  --alert_padding: 14px 18px;
+  --alert_radius: 8px;
+  --badge_padding: 4px 12px;
+  --badge_radius: 16px;
+  --table_padding: 10px 14px;
+}
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg_page); }
+.sketchy-page { transform: rotate(0deg); }
+.sketchy-card { transform: rotate(0deg); }
+.sketchy-card-alt { transform: rotate(0deg); }
+.sketchy-divider { transform: rotate(0deg); }
+</style>
+
+</head>
+<body class="min-h-screen p-8 md:p-12">
+<div class="page mx-auto bg-[var(--bg-card)] p-[var(--page-padding)] border-2 border-[var(--border-page)] shadow-lg max-w-[var(--page-width)] sketchy-page">
+<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-[var(--border-medium)] text-[0.95em] text-[var(--text-primary)]"><span class="hover:underline cursor-default">Back</span></nav>
+<hr class="my-3 border-0 border-t-[3px] border-[var(--border-card)] sketchy-divider">
+<div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:dashed">img</div>
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Vintage Camera</h2>
+<div class="flex gap-4 items-start flex-wrap"><p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">$299</p>
+<button class="inline-block my-2 px-[18px] py-[8px] border-2 border-[var(--border-dark)] rounded-[var(--button-radius)] bg-[var(--bg-button)] cursor-default shadow-[1px_2px_0_var(--shadow-button)] active:shadow-none active:translate-x-px active:translate-y-0.5">Add to Cart</button></div>
+<hr class="my-3 border-0 border-t-[2px] border-[var(--border-light)] sketchy-divider">
+<p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">Description</p>
+<div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:dashed">img</div>
+<div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:dashed">img</div>
+<div class="relative inline-block my-1.5 pr-7 pl-2.5 py-[8px] border-2 border-[var(--border-medium)] rounded-[var(--input-radius)] bg-[var(--bg-input)]">Color  Size<span class="absolute right-2 top-1/2 -translate-y-1/2">▾</span></div>
+</div>
+</body>
+</html>
