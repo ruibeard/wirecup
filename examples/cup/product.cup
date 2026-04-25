@@ -1,10 +1,10 @@
-n Back
+n Back|dashboard
 =
 x
 h Vintage Camera
 r
     t $299
-    b Add to Cart
+    b Add to Cart|cart
 -
 t Description
 x

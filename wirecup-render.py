@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-pen-render.py — Render .pen files to HTML wireframes (Tailwind edition)
+wirecup-render.py — Render .cup files to HTML wireframes (Tailwind edition)
 
 Usage:
-    python pen-render.py file.pen [-o out.html] [--theme theme.json] [--out-dir ./dist]
+    python wirecup-render.py file.cup [-o out.html] [--theme theme.json] [--out-dir ./dist]
 
 Folder layout when using --out-dir:
     dist/
@@ -105,6 +105,8 @@ def load_theme(path: str | None) -> dict:
     p = Path(path)
     if not p.exists():
         p = Path(__file__).parent / "themes" / path
+        if not p.exists() and not p.suffix:
+            p = p.with_suffix(".json")
         if not p.exists():
             raise FileNotFoundError(f"Theme not found: {path}")
     with open(p, "r") as f:
@@ -171,9 +173,35 @@ def page_wrap(theme: dict, inner: str) -> str:
 
 # ── Element Renderers ──────────────────────────────────────────────
 
+def parse_link(content: str) -> tuple[str, str]:
+    """Split content into label + href. Returns (label, href)."""
+    if "|" not in content:
+        return content.strip(), ""
+    label, target = content.split("|", 1)
+    label = label.strip()
+    target = target.strip()
+    if target.startswith("http"):
+        href = target
+    elif target.endswith(".cup"):
+        href = target[:-4] + ".html"
+    elif "." in target:
+        href = target
+    else:
+        href = target + ".html"
+    return label, href
+
+
 def el_nav(content: str) -> str:
-    items = [f'<span class="hover:underline cursor-default">{x.strip()}</span>' for x in content.split() if x.strip()]
-    return f'<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-[var(--border-medium)] text-[0.95em] text-[var(--text-primary)]">{"".join(items)}</nav>'
+    items = []
+    for x in content.split():
+        if not x.strip():
+            continue
+        label, href = parse_link(x)
+        if href:
+            items.append(f'<a href="{href}" class="hover:underline text-[var(--text-primary)]">{label}</a>')
+        else:
+            items.append(f'<span class="hover:underline cursor-default text-[var(--text-primary)]">{label}</span>')
+    return f'<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-[var(--border-medium)] text-[0.95em]">{"".join(items)}</nav>'
 
 
 def el_heading(content: str) -> str:
@@ -190,8 +218,13 @@ def el_input(content: str) -> str:
 
 
 def el_button(content: str) -> str:
-    label = content.strip() or "OK"
-    return f'<button class="inline-block my-2 px-[18px] py-[8px] border-2 border-[var(--border-dark)] rounded-[var(--button-radius)] bg-[var(--bg-button)] cursor-default shadow-[1px_2px_0_var(--shadow-button)] active:shadow-none active:translate-x-px active:translate-y-0.5">{label}</button>'
+    label, href = parse_link(content)
+    if not label:
+        label = "OK"
+    classes = "inline-block my-2 px-[18px] py-[8px] border-2 border-[var(--border-dark)] rounded-[var(--button-radius)] bg-[var(--bg-button)] cursor-default shadow-[1px_2px_0_var(--shadow-button)] active:shadow-none active:translate-x-px active:translate-y-0.5 text-[var(--text-primary)] no-underline"
+    if href:
+        return f'<a href="{href}" class="{classes}">{label}</a>'
+    return f'<button class="{classes}">{label}</button>'
 
 
 def el_image(content: str) -> str:
@@ -384,8 +417,8 @@ def render(lines: list[str], theme: dict) -> str:
 # ── CLI ────────────────────────────────────────────────────────────
 
 def main():
-    p = argparse.ArgumentParser(description="Render .pen mockups to HTML")
-    p.add_argument("file", help="Input .pen file")
+    p = argparse.ArgumentParser(description="Render wirecup .cup files to HTML")
+    p.add_argument("file", help="Input .cup file")
     p.add_argument("-o", "--output", help="Output HTML file name (default: auto)")
     p.add_argument("-t", "--theme", help="Theme JSON file (or name in themes/ dir)")
     p.add_argument("-d", "--out-dir", help="Base output directory. HTML goes to <dir>/html/, PNGs to <dir>/png/")
