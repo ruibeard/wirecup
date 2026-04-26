@@ -1,136 +1,109 @@
-<!doctype html><html><head><meta charset="utf-8">
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap');
-* { box-sizing: border-box; }
-body {
-    font-family: 'Kalam', 'Comic Sans MS', cursive, sans-serif;
-    background: #f5f5f0;
-    padding: 40px;
-    color: #333;
+:root {
+  --bg_page: #f5f5f0;
+  --bg_card: #fffef8;
+  --bg_input: #fafafa;
+  --bg_button: #eee;
+  --bg_image: #e8e8e8;
+  --bg_badge_green: #e6f4ea;
+  --bg_badge_amber: #fef3e8;
+  --bg_badge_red: #fce8e8;
+  --bg_badge_blue: #e8f0fe;
+  --bg_badge_grey: #f1f3f4;
+  --bg_alert_green: #e6f4ea;
+  --bg_alert_amber: #fef3e8;
+  --bg_alert_red: #fce8e8;
+  --bg_alert_blue: #e8f0fe;
+  --bg_table_header: #f0f0e8;
+  --bg_table_alt: #fafaf5;
+  --text_primary: #333;
+  --text_secondary: #555;
+  --text_muted: #999;
+  --text_placeholder: #bbb;
+  --text_badge_green: #137333;
+  --text_badge_amber: #b06000;
+  --text_badge_red: #a50e0e;
+  --text_badge_blue: #174ea6;
+  --text_badge_grey: #5f6368;
+  --text_alert_green: #137333;
+  --text_alert_amber: #b06000;
+  --text_alert_red: #a50e0e;
+  --text_alert_blue: #174ea6;
+  --border_page: #ccc;
+  --border_light: #aaa;
+  --border_medium: #888;
+  --border_dark: #555;
+  --border_card: #777;
+  --border_image: #aaa;
+  --border_badge_green: #34a853;
+  --border_badge_amber: #f9ab00;
+  --border_badge_red: #ea4335;
+  --border_badge_blue: #4285f4;
+  --border_badge_grey: #9aa0a6;
+  --border_alert_green: #34a853;
+  --border_alert_amber: #f9ab00;
+  --border_alert_red: #ea4335;
+  --border_alert_blue: #4285f4;
+  --border_checkbox: #666;
+  --shadow: rgba(0,0,0,0.1);
+  --shadow_button: #bbb;
+  --page_width: 900px;
+  --page_padding: 30px;
+  --card_padding: 14px;
+  --card_margin: 10px 0;
+  --card_radius: 6px;
+  --button_padding: 8px 18px;
+  --button_radius: 6px;
+  --input_padding: 8px 10px;
+  --input_radius: 4px;
+  --image_min_height: 80px;
+  --image_border: dashed;
+  --alert_padding: 12px 16px;
+  --alert_radius: 6px;
+  --badge_padding: 3px 10px;
+  --badge_radius: 12px;
+  --table_padding: 8px 12px;
 }
-.page {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #fffef8;
-    padding: 30px;
-    box-shadow: 2px 3px 10px rgba(0,0,0,0.1);
-    border: 2px solid #ccc;
-    transform: rotate(-0.3deg);
-}
-.nav {
-    display: flex; gap: 24px; padding: 8px 0;
-    border-bottom: 2px solid #999; margin-bottom: 16px;
-    font-size: 0.95em;
-}
-.nav span { cursor: default; }
-.nav span:hover { text-decoration: underline; }
-.heading {
-    font-size: 1.6em; font-weight: 700; margin: 12px 0 8px;
-    letter-spacing: -0.5px;
-}
-.text { margin: 6px 0; font-size: 0.95em; color: #555; }
-.input {
-    border: 2px solid #888; border-radius: 4px;
-    padding: 8px 10px; margin: 6px 0;
-    background: #fafafa; color: #999;
-    font-family: inherit; min-width: 200px; display: inline-block;
-}
-.button {
-    border: 2px solid #555; border-radius: 6px;
-    padding: 8px 18px; margin: 8px 0;
-    background: #eee; cursor: default;
-    font-family: inherit; display: inline-block;
-    box-shadow: 1px 2px 0 #bbb;
-}
-.button:active { box-shadow: none; transform: translate(1px, 2px); }
-.select {
-    border: 2px solid #888; border-radius: 4px;
-    padding: 8px 28px 8px 10px; margin: 6px 0;
-    background: #fafafa; display: inline-block; position: relative;
-}
-.select::after { content: '▾'; position: absolute; right: 8px; }
-.image {
-    background: #e8e8e8; border: 2px dashed #aaa;
-    min-height: 80px; min-width: 80px; margin: 6px 0;
-    display: flex; align-items: center; justify-content: center;
-    color: #999; font-size: 0.8em;
-}
-.card {
-    border: 2px solid #777; border-radius: 6px;
-    padding: 14px; margin: 10px 0;
-    background: #fff; transform: rotate(0.2deg);
-}
-.card:nth-child(even) { transform: rotate(-0.1deg); }
-.row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
-.list { margin: 4px 0; padding-left: 18px; }
-.list::marker { content: '• '; }
-.divider {
-    border: none; border-top: 2px solid #aaa;
-    margin: 12px 0; transform: rotate(-0.1deg);
-}
-.thick { border-top-width: 3px; border-color: #777; }
-.placeholder { color: #bbb; font-style: italic; }
-
-/* New elements */
-.table-wrap { margin: 10px 0; overflow-x: auto; }
-.table {
-    width: 100%; border-collapse: collapse;
-    font-size: 0.9em;
-}
-.table th, .table td {
-    border: 2px solid #888; padding: 8px 12px;
-    text-align: left;
-}
-.table th { background: #f0f0e8; font-weight: 700; }
-.table tr:nth-child(even) { background: #fafaf5; }
-.badge {
-    display: inline-block; padding: 3px 10px; border-radius: 12px;
-    font-size: 0.8em; font-weight: 700; border: 2px solid;
-    margin: 2px 4px 2px 0;
-}
-.badge-green { background: #e6f4ea; border-color: #34a853; color: #137333; }
-.badge-amber { background: #fef3e8; border-color: #f9ab00; color: #b06000; }
-.badge-red { background: #fce8e8; border-color: #ea4335; color: #a50e0e; }
-.badge-blue { background: #e8f0fe; border-color: #4285f4; color: #174ea6; }
-.badge-grey { background: #f1f3f4; border-color: #9aa0a6; color: #5f6368; }
-.alert {
-    padding: 12px 16px; border-radius: 6px; border: 2px solid;
-    margin: 10px 0; font-size: 0.95em;
-}
-.alert-green { background: #e6f4ea; border-color: #34a853; color: #137333; }
-.alert-amber { background: #fef3e8; border-color: #f9ab00; color: #b06000; }
-.alert-red { background: #fce8e8; border-color: #ea4335; color: #a50e0e; }
-.alert-blue { background: #e8f0fe; border-color: #4285f4; color: #174ea6; }
-.checkbox {
-    display: flex; align-items: center; gap: 8px;
-    margin: 6px 0; font-size: 0.95em;
-}
-.checkbox-box {
-    width: 18px; height: 18px; border: 2px solid #666;
-    border-radius: 3px; display: inline-block; flex-shrink: 0;
-}
+body { font-family: 'Kalam', Comic Sans MS, cursive, sans-serif; background: var(--bg_page); }
+.sketchy-page { transform: rotate(-0.3deg); }
+.sketchy-card { transform: rotate(0.2deg); }
+.sketchy-card-alt { transform: rotate(-0.1deg); }
+.sketchy-divider { transform: rotate(-0.1deg); }
 </style>
-</head><body><div class="page">
-<div class="nav"><span>Home</span><span>Application</span><span>Household</span><span>Ballot</span><span>Help</span></div>
-<hr class="divider thick">
-<div class="heading">Undergraduate Application 2026-27</div>
-<div class="alert alert-blue">Complete by 29 January</div>
-<hr class="divider">
-<div class="card"><div class="heading">Step 1 — Confirm Need</div>
-<label class="checkbox"><span class="checkbox-box"></span><span>I require College accommodation next year</span></label>
-<label class="checkbox"><span class="checkbox-box"></span><span>I am continuing as 4th year</span></label></div>
-<hr class="divider">
-<div class="card"><div class="heading">Step 2 — Household Size</div>
-<div class="select">Single  Double  Triple  Group of 4  Group of 5  Group of 6</div></div>
-<hr class="divider">
-<div class="card"><div class="heading">Step 3 — Triple Set</div>
-<label class="checkbox"><span class="checkbox-box"></span><span>Apply for triple set</span></label>
-<div class="text">Only for 3rd years with compatible households</div></div>
-<hr class="divider">
-<div class="card"><div class="heading">Step 4 — Special Requirements</div>
-<label class="checkbox"><span class="checkbox-box"></span><span>I have a special requirement</span></label>
-<div class="text">You will be contacted separately for evidence</div></div>
-<hr class="divider">
-<div class="row"><div class="button">Save Draft</div>
-<div class="button">Submit Application</div></div>
-</div></body></html>
+
+</head>
+<body class="min-h-screen p-8 md:p-12">
+<div class="page mx-auto bg-[var(--bg-card)] p-[var(--page-padding)] border-2 border-[var(--border-page)] shadow-lg max-w-[var(--page-width)] sketchy-page">
+<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-[var(--border-medium)] text-[0.95em]"><span class="hover:underline cursor-default text-[var(--text-primary)]">Home</span><span class="hover:underline cursor-default text-[var(--text-primary)]">Application</span><span class="hover:underline cursor-default text-[var(--text-primary)]">Household</span><span class="hover:underline cursor-default text-[var(--text-primary)]">Ballot</span><span class="hover:underline cursor-default text-[var(--text-primary)]">Help</span></nav>
+<hr class="my-3 border-0 border-t-[3px] border-[var(--border-card)] sketchy-divider">
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Undergraduate Application 2026-27</h2>
+<div class="my-2.5 p-[var(--alert-padding)] rounded-[var(--alert-radius)] border-2 text-[0.95em] bg-[var(--bg_alert_blue)] border-[var(--border_alert_blue)] text-[var(--text_alert_blue)]">Complete by 29 January</div>
+<hr class="my-3 border-0 border-t-[2px] border-[var(--border-light)] sketchy-divider">
+<div class="card my-[var(--card-margin)] p-[var(--card-padding)] border-2 border-[var(--border-card)] rounded-[var(--card-radius)] bg-[var(--bg-card)] sketchy-card"><h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Step 1 — Confirm Need</h2>
+<label class="flex items-center gap-2 my-1.5 text-[0.95em] text-[var(--text-primary)]"><span class="inline-block w-[18px] h-[18px] border-2 border-[var(--border-checkbox)] rounded-[3px] shrink-0"></span><span>I require College accommodation next year</span></label>
+<label class="flex items-center gap-2 my-1.5 text-[0.95em] text-[var(--text-primary)]"><span class="inline-block w-[18px] h-[18px] border-2 border-[var(--border-checkbox)] rounded-[3px] shrink-0"></span><span>I am continuing as 4th year</span></label></div>
+<hr class="my-3 border-0 border-t-[2px] border-[var(--border-light)] sketchy-divider">
+<div class="card my-[var(--card-margin)] p-[var(--card-padding)] border-2 border-[var(--border-card)] rounded-[var(--card-radius)] bg-[var(--bg-card)] sketchy-card"><h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Step 2 — Household Size</h2>
+<div class="relative inline-block my-1.5 pr-7 pl-2.5 py-[8px] border-2 border-[var(--border-medium)] rounded-[var(--input-radius)] bg-[var(--bg-input)]">Single  Double  Triple  Group of 4  Group of 5  Group of 6<span class="absolute right-2 top-1/2 -translate-y-1/2">▾</span></div></div>
+<hr class="my-3 border-0 border-t-[2px] border-[var(--border-light)] sketchy-divider">
+<div class="card my-[var(--card-margin)] p-[var(--card-padding)] border-2 border-[var(--border-card)] rounded-[var(--card-radius)] bg-[var(--bg-card)] sketchy-card"><h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Step 3 — Triple Set</h2>
+<label class="flex items-center gap-2 my-1.5 text-[0.95em] text-[var(--text-primary)]"><span class="inline-block w-[18px] h-[18px] border-2 border-[var(--border-checkbox)] rounded-[3px] shrink-0"></span><span>Apply for triple set</span></label>
+<p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">Only for 3rd years with compatible households</p></div>
+<hr class="my-3 border-0 border-t-[2px] border-[var(--border-light)] sketchy-divider">
+<div class="card my-[var(--card-margin)] p-[var(--card-padding)] border-2 border-[var(--border-card)] rounded-[var(--card-radius)] bg-[var(--bg-card)] sketchy-card"><h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Step 4 — Special Requirements</h2>
+<label class="flex items-center gap-2 my-1.5 text-[0.95em] text-[var(--text-primary)]"><span class="inline-block w-[18px] h-[18px] border-2 border-[var(--border-checkbox)] rounded-[3px] shrink-0"></span><span>I have a special requirement</span></label>
+<p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">You will be contacted separately for evidence</p></div>
+<hr class="my-3 border-0 border-t-[2px] border-[var(--border-light)] sketchy-divider">
+<div class="flex gap-4 items-start flex-wrap"><button class="inline-block my-2 px-[18px] py-[8px] border-2 border-[var(--border-dark)] rounded-[var(--button-radius)] bg-[var(--bg-button)] cursor-default shadow-[1px_2px_0_var(--shadow-button)] active:shadow-none active:translate-x-px active:translate-y-0.5 text-[var(--text-primary)] no-underline">Save Draft</button>
+<button class="inline-block my-2 px-[18px] py-[8px] border-2 border-[var(--border-dark)] rounded-[var(--button-radius)] bg-[var(--bg-button)] cursor-default shadow-[1px_2px_0_var(--shadow-button)] active:shadow-none active:translate-x-px active:translate-y-0.5 text-[var(--text-primary)] no-underline">Submit Application</button></div>
+</div>
+</body>
+</html>

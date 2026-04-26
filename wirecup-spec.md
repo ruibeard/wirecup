@@ -179,29 +179,3 @@ Supported built-in themes:
 - `clean`
 
 The renderer also accepts an explicit path to a theme JSON file.
-
-## Repository Layout
-
-```text
-mockups/
-├── AGENTS.md
-├── wirecup-render.py
-├── docs/
-│   └── wirecup-spec.md
-├── themes/
-│   ├── default.json
-│   ├── dark.json
-│   └── clean.json
-└── examples/
-    ├── pen/
-    └── html/
-```
-
-## Non-Goals
-
-Wirecup is not intended to fully encode:
-- responsive behavior
-- component state machines
-- accessibility semantics
-- production CSS details
-- precise interaction timing

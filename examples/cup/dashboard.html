@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap');
+:root {
+  --bg_page: #f5f5f0;
+  --bg_card: #fffef8;
+  --bg_input: #fafafa;
+  --bg_button: #eee;
+  --bg_image: #e8e8e8;
+  --bg_badge_green: #e6f4ea;
+  --bg_badge_amber: #fef3e8;
+  --bg_badge_red: #fce8e8;
+  --bg_badge_blue: #e8f0fe;
+  --bg_badge_grey: #f1f3f4;
+  --bg_alert_green: #e6f4ea;
+  --bg_alert_amber: #fef3e8;
+  --bg_alert_red: #fce8e8;
+  --bg_alert_blue: #e8f0fe;
+  --bg_table_header: #f0f0e8;
+  --bg_table_alt: #fafaf5;
+  --text_primary: #333;
+  --text_secondary: #555;
+  --text_muted: #999;
+  --text_placeholder: #bbb;
+  --text_badge_green: #137333;
+  --text_badge_amber: #b06000;
+  --text_badge_red: #a50e0e;
+  --text_badge_blue: #174ea6;
+  --text_badge_grey: #5f6368;
+  --text_alert_green: #137333;
+  --text_alert_amber: #b06000;
+  --text_alert_red: #a50e0e;
+  --text_alert_blue: #174ea6;
+  --border_page: #ccc;
+  --border_light: #aaa;
+  --border_medium: #888;
+  --border_dark: #555;
+  --border_card: #777;
+  --border_image: #aaa;
+  --border_badge_green: #34a853;
+  --border_badge_amber: #f9ab00;
+  --border_badge_red: #ea4335;
+  --border_badge_blue: #4285f4;
+  --border_badge_grey: #9aa0a6;
+  --border_alert_green: #34a853;
+  --border_alert_amber: #f9ab00;
+  --border_alert_red: #ea4335;
+  --border_alert_blue: #4285f4;
+  --border_checkbox: #666;
+  --shadow: rgba(0,0,0,0.1);
+  --shadow_button: #bbb;
+  --page_width: 900px;
+  --page_padding: 30px;
+  --card_padding: 14px;
+  --card_margin: 10px 0;
+  --card_radius: 6px;
+  --button_padding: 8px 18px;
+  --button_radius: 6px;
+  --input_padding: 8px 10px;
+  --input_radius: 4px;
+  --image_min_height: 80px;
+  --image_border: dashed;
+  --alert_padding: 12px 16px;
+  --alert_radius: 6px;
+  --badge_padding: 3px 10px;
+  --badge_radius: 12px;
+  --table_padding: 8px 12px;
+}
+body { font-family: 'Kalam', Comic Sans MS, cursive, sans-serif; background: var(--bg_page); }
+.sketchy-page { transform: rotate(-0.3deg); }
+.sketchy-card { transform: rotate(0.2deg); }
+.sketchy-card-alt { transform: rotate(-0.1deg); }
+.sketchy-divider { transform: rotate(-0.1deg); }
+</style>
+
+</head>
+<body class="min-h-screen p-8 md:p-12">
+<div class="page mx-auto bg-[var(--bg-card)] p-[var(--page-padding)] border-2 border-[var(--border-page)] shadow-lg max-w-[var(--page-width)] sketchy-page">
+<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-[var(--border-medium)] text-[0.95em]"><a href="index.html" class="hover:underline text-[var(--text-primary)]">Home</a><a href="dashboard.html" class="hover:underline text-[var(--text-primary)]">Dashboard</a><a href="settings.html" class="hover:underline text-[var(--text-primary)]">Settings</a><a href="profile.html" class="hover:underline text-[var(--text-primary)]">Profile</a></nav>
+<hr class="my-3 border-0 border-t-[3px] border-[var(--border-card)] sketchy-divider">
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Welcome Back</h2>
+<p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">Here's what's happening today</p>
+<div class="flex gap-4 items-start flex-wrap"><div class="card my-[var(--card-margin)] p-[var(--card-padding)] border-2 border-[var(--border-card)] rounded-[var(--card-radius)] bg-[var(--bg-card)] sketchy-card"><div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:dashed">img</div>
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Users</h2>
+<p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">1,204</p></div>
+<div class="card my-[var(--card-margin)] p-[var(--card-padding)] border-2 border-[var(--border-card)] rounded-[var(--card-radius)] bg-[var(--bg-card)] sketchy-card"><div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:dashed">img</div>
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Revenue</h2>
+<p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">$42K</p></div>
+<div class="card my-[var(--card-margin)] p-[var(--card-padding)] border-2 border-[var(--border-card)] rounded-[var(--card-radius)] bg-[var(--bg-card)] sketchy-card"><div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:dashed">img</div>
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-[var(--text-primary)]">Orders</h2>
+<p class="my-1.5 text-[0.95em] text-[var(--text-secondary)]">89</p></div></div>
+<hr class="my-3 border-0 border-t-[2px] border-[var(--border-light)] sketchy-divider">
+<li class="my-1 pl-4 list-disc text-[var(--text-primary)]">New order #1024 from Alice</li>
+<li class="my-1 pl-4 list-disc text-[var(--text-primary)]">Bob signed up</li>
+<li class="my-1 pl-4 list-disc text-[var(--text-primary)]">Server alert resolved</li>
+</div>
+</body>
+</html>
