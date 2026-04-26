@@ -2,13 +2,43 @@
 
 Write compact `.cup` wireframes. Render them with one command.
 
+## Install In Another Project
+
+Source repo:
+
+`https://github.com/ruibeard/wirecup`
+
+Download these files:
+
+- `https://raw.githubusercontent.com/ruibeard/wirecup/main/wirecuprender`
+- `https://raw.githubusercontent.com/ruibeard/wirecup/main/wirecup.css`
+- `https://raw.githubusercontent.com/ruibeard/wirecup/main/.agents/skills/wirecup/SKILL.md`
+
+Minimal setup:
+
+```bash
+mkdir -p .agents/skills/wirecup
+curl -L https://raw.githubusercontent.com/ruibeard/wirecup/main/wirecuprender -o wirecuprender
+curl -L https://raw.githubusercontent.com/ruibeard/wirecup/main/wirecup.css -o wirecup.css
+curl -L https://raw.githubusercontent.com/ruibeard/wirecup/main/.agents/skills/wirecup/SKILL.md -o .agents/skills/wirecup/SKILL.md
+chmod +x wirecuprender
+```
+
+If you only want the renderer and not the skill, download just `wirecuprender` and `wirecup.css`.
+
 ## Run
 
 ```bash
 python3 wirecuprender input.cup
 ```
 
-This writes `input.html`, serves it, watches `input.cup` and `wirecup.css`, and opens the browser.
+This serves the rendered page from memory, watches `input.cup` and `wirecup.css`, and opens the browser.
+
+To also save `input.html` next to the source file:
+
+```bash
+python3 wirecuprender input.cup --save
+```
 
 ## Syntax
 
@@ -22,8 +52,8 @@ This writes `input.html`, serves it, watches `input.cup` and `wirecup.css`, and 
 | `x` | image box | `x Chart` |
 | `s` | select | `s Status` |
 | `l` | list item | `l Item` |
-| `v` | badge | `v Active` |
-| `a` | alert | `a Warning` |
+| `v` | badge | `v Draft` |
+| `a` | alert | `a Heads up: Billing address missing` |
 | `k` | checkbox | `k Remember me` |
 | `c` | card | `c` then indented children |
 | `r` | row | `r` then indented children |
@@ -38,6 +68,7 @@ This writes `input.html`, serves it, watches `input.cup` and `wirecup.css`, and 
 - Indentation creates children for `c`, `r`, and `g`.
 - Grid cells split on 2+ spaces.
 - In grids, cells starting with `v ` become badges and `b ` become buttons.
+- Badges and alerts are neutral sketch elements, not semantic colors.
 
 ## Links
 

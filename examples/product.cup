@@ -1,12 +1,25 @@
-n Back|dashboard
+n Dashboard|dashboard  Catalog  Cart|cart
 =
-x
 h Vintage Camera
+t Internal product page for a hardware listing.
 r
-    t $299
+  c
+    x Product Image
+  c
+    t Price
+    i $299
+    t Condition
+    s Excellent
+    v In Stock
     b Add to Cart|cart
 -
-t Description
-x
-x
-s Color  Size
+h Details
+t Compact 35mm camera body with carrying case and two lenses.
+t Shipping
+i Standard delivery
+k Include gift wrap
+-
+g Spec  Value
+  Finish  Black
+  Lens  50mm
+  Warranty  30 days

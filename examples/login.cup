@@ -1,9 +1,11 @@
-n Logo
--
-h Login
-t Email
-i
+n Wirecup
+=
+h Sign In
+t Work email
+i name@company.com
 t Password
-i
+i ********
+k Keep me signed in
 b Sign In|dashboard
-t Forgot password?
+t Forgot your password?
+t Need an account? Contact your admin.

@@ -115,45 +115,11 @@ def el_divider(thick: bool = False) -> str:
 
 
 def el_badge(content: str) -> str:
-    text = content.strip().lower()
-    mapping = {
-        "green": "approved confirmed active free available success yes green".split(),
-        "amber": "pending review warning amber yellow wait".split(),
-        "red": "rejected error blocked red no unavailable withdrawn".split(),
-        "blue": "info blue new updated note".split(),
-    }
-    color = "grey"
-    for name, words in mapping.items():
-        if text in words:
-            color = name
-            break
-    classes = {
-        "green": "bg-green-100 border-green-500 text-green-700",
-        "amber": "bg-amber-100 border-amber-500 text-amber-700",
-        "red": "bg-red-100 border-red-500 text-red-700",
-        "blue": "bg-blue-100 border-blue-500 text-blue-700",
-        "grey": "bg-stone-100 border-stone-400 text-stone-600",
-    }[color]
-    return f'<span class="inline-block my-0.5 mx-1 px-3 py-0.5 text-[0.8em] font-bold rounded-xl border-2 {classes}">{content.strip()}</span>'
+    return f'<span class="inline-block my-0.5 mx-1 px-3 py-0.5 text-[0.8em] font-bold rounded-xl border-2 bg-stone-100 border-stone-400 text-stone-600">{content.strip()}</span>'
 
 
 def el_alert(content: str) -> str:
-    text = content.strip().lower()
-    if any(word in text for word in ("success", "confirmed", "approved", "green")):
-        color = "green"
-    elif any(word in text for word in ("warning", "pending", "review", "amber", "attention")):
-        color = "amber"
-    elif any(word in text for word in ("error", "rejected", "failed", "red", "urgent")):
-        color = "red"
-    else:
-        color = "blue"
-    classes = {
-        "green": "bg-green-100 border-green-500 text-green-700",
-        "amber": "bg-amber-100 border-amber-500 text-amber-700",
-        "red": "bg-red-100 border-red-500 text-red-700",
-        "blue": "bg-blue-100 border-blue-500 text-blue-700",
-    }[color]
-    return f'<div class="my-2.5 p-4 rounded-md border-2 text-[0.95em] {classes}">{content.strip()}</div>'
+    return f'<div class="my-2.5 p-4 rounded-md border-2 text-[0.95em] bg-stone-100 border-stone-400 text-stone-700">{content.strip()}</div>'
 
 
 def el_checkbox(content: str) -> str:
@@ -291,6 +257,7 @@ RELOAD_SCRIPT = """
 
 
 class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
+    html: str = ""
     reload_time: float = 0.0
 
     def do_GET(self):
@@ -299,6 +266,14 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({"t": self.reload_time}).encode())
+            return
+        if self.path in {"/", "/index.html"}:
+            body = self.html.encode()
+            self.send_response(200)
+            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
             return
         super().do_GET()
 
@@ -315,7 +290,7 @@ def watch_state(*paths: Path) -> tuple[float, ...]:
     return tuple(path.stat().st_mtime for path in paths)
 
 
-def dev_server(cup_path: Path, port: int):
+def dev_server(cup_path: Path, port: int, save: bool):
     cup_path = cup_path.resolve()
     out_path = cup_path.with_suffix(".html")
     support_css_path = ROOT / "wirecup.css"
@@ -324,17 +299,19 @@ def dev_server(cup_path: Path, port: int):
     def rebuild():
         nonlocal last_state
         html = render(cup_path.read_text().splitlines(), support_css_path.read_text(), cup_path.stem)
-        out_path.write_text(html.replace("</body>", RELOAD_SCRIPT + "\n</body>"))
+        LiveReloadHandler.html = html.replace("</body>", RELOAD_SCRIPT + "\n</body>")
+        if save:
+            out_path.write_text(LiveReloadHandler.html)
         LiveReloadHandler.reload_time = time.time()
         last_state = watch_state(cup_path, support_css_path)
-        print(f"Reloaded {out_path.name}")
+        print(f"Reloaded {cup_path.name}")
 
     rebuild()
-    os.chdir(out_path.parent)
+    os.chdir(cup_path.parent)
     server = ReusableTCPServer(("", port), LiveReloadHandler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
 
-    url = f"http://localhost:{port}/{out_path.name}"
+    url = f"http://localhost:{port}/"
     print(url)
     webbrowser.open(url)
 
@@ -351,8 +328,9 @@ def main():
     parser = argparse.ArgumentParser(description="Render a .cup file, watch it, and open it in the browser.")
     parser.add_argument("file", help="Input .cup file")
     parser.add_argument("-p", "--port", type=int, default=8765, help="Port to serve on")
+    parser.add_argument("--save", action="store_true", help="Also write rendered HTML next to the input file")
     args = parser.parse_args()
-    dev_server(Path(args.file), args.port)
+    dev_server(Path(args.file), args.port, save=args.save)
 
 
 if __name__ == "__main__":

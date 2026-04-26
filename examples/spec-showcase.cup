@@ -1,0 +1,30 @@
+n Login|login.cup  Dashboard|dashboard.cup  Product|product.cup  Docs|https://example.com/docs
+=
+h Wirecup Spec Tour
+t Compact example covering every Wirecup element in one screen.
+a Heads up: Billing address still needs review.
+r
+  c
+    h Workspace Profile
+    t Name
+    i Acme Studio
+    t Plan
+    s Pro Annual
+    k Enable weekly summary emails
+    b Save Changes|settings
+  c
+    h Current State
+    v Draft
+    t Members
+    x Team Avatar
+    b View Audit Log|audit
+-
+h Recent Activity
+l New designer invited
+l Invoice exported
+l Domain verification pending
+-
+g Name  Status  Action
+  Billing  v Needs Review  b Review|billing
+  Domain  v Live  b Open|domain
+  API Keys  v Rotating  b Resolve|keys

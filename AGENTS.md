@@ -6,4 +6,4 @@ Compact `.cup` DSL for low-fidelity UI wireframes.
 python3 wirecuprender input.cup
 ```
 
-Renders HTML, watches the file, and opens it in the browser.
+Serves the rendered HTML from memory, watches the file, and opens it in the browser.

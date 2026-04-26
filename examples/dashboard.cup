@@ -1,21 +1,26 @@
-n Home|index  Dashboard|dashboard  Settings|settings  Profile|profile
+n Overview  Dashboard  Products|product.cup  Settings
 =
-h Welcome Back
-t Here's what's happening today
+h Team Dashboard
+t Quick view of work, notes, and open items.
 r
   c
-    x
-    h Users
-    t 1,204
+    h Open Tasks
+    t 14
+    b View Queue|tasks
   c
-    x
-    h Revenue
-    t $42K
+    h Team Note
+    a Sprint review moved to Thursday afternoon.
   c
-    x
-    h Orders
-    t 89
+    h Release Status
+    v Draft
+    t Mobile app cut planned for Friday.
 -
-l New order #1024 from Alice
-l Bob signed up
-l Server alert resolved
+h Activity
+l Alice uploaded the Q2 deck
+l New bug report assigned to Platform
+l Vendor contract waiting on signature
+-
+g Area  Owner  Action
+  Design System  Maya  b Open|design-system
+  Billing  Arun  b Review|billing
+  Website  Lena  b View|website
