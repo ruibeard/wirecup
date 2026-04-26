@@ -3,9 +3,7 @@
 wirecup-render.py — Render .cup files to HTML wireframes (Tailwind edition)
 
 Usage:
-    python wirecup-render.py file.cup           # dev server with live reload
-    python wirecup-render.py file.cup --build   # one-off render
-    python wirecup-render.py file.cup -o out.html --build
+    python wirecup-render.py file.cup
     python wirecup-render.py file.cup --port 8080
 """
 
@@ -16,11 +14,12 @@ import os
 import socketserver
 import threading
 import time
+import webbrowser
 from pathlib import Path
 
 
-def load_theme() -> str:
-    p = Path(__file__).parent / "theme.css"
+def load_support_css() -> str:
+    p = Path(__file__).parent / "wirecup.css"
     return p.read_text()
 
 
@@ -30,34 +29,6 @@ def tailwind_config() -> str:
 tailwind.config = {
   theme: {
     extend: {
-      colors: {
-        page: 'var(--bg-page)',
-        card: 'var(--bg-card)',
-        input: 'var(--bg-input)',
-        button: 'var(--bg-button)',
-        image: 'var(--bg-image)',
-        'badge-green': 'var(--bg-badge-green)',
-        'badge-amber': 'var(--bg-badge-amber)',
-        'badge-red': 'var(--bg-badge-red)',
-        'badge-blue': 'var(--bg-badge-blue)',
-        'badge-grey': 'var(--bg-badge-grey)',
-        'alert-green': 'var(--bg-alert-green)',
-        'alert-amber': 'var(--bg-alert-amber)',
-        'alert-red': 'var(--bg-alert-red)',
-        'alert-blue': 'var(--bg-alert-blue)',
-        'table-header': 'var(--bg-table-header)',
-        'table-alt': 'var(--bg-table-alt)',
-        primary: 'var(--text-primary)',
-        secondary: 'var(--text-secondary)',
-        muted: 'var(--text-muted)',
-        placeholder: 'var(--text-placeholder)',
-        'border-page': 'var(--border-page)',
-        'border-light': 'var(--border-light)',
-        'border-medium': 'var(--border-medium)',
-        'border-dark': 'var(--border-dark)',
-        'border-card': 'var(--border-card)',
-        'border-image': 'var(--border-image)',
-      },
       fontFamily: {
         kalam: ["Kalam", "Comic Sans MS", "cursive"],
       },
@@ -68,20 +39,20 @@ tailwind.config = {
 """
 
 
-def css(theme_text: str) -> str:
-    return f'<script src="https://cdn.tailwindcss.com"></script>\n{tailwind_config()}\n<style>\n{theme_text}\n</style>'
+def css(support_css: str) -> str:
+    return f'{tailwind_config()}\n<script src="https://cdn.tailwindcss.com"></script>\n<style>\n{support_css}\n</style>'
 
 
-def page_wrap(theme_text: str, inner: str) -> str:
+def page_wrap(support_css: str, inner: str) -> str:
     return f"""<!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{css(theme_text)}
+{css(support_css)}
 </head>
-<body class="min-h-screen p-8 md:p-12 font-kalam bg-page">
-<div class="page mx-auto bg-card p-8 border-2 border-border-page shadow-lg max-w-[900px] sketchy-page">
+<body class="min-h-screen p-8 md:p-12 font-kalam bg-stone-100">
+<div class="page mx-auto bg-stone-50 p-8 border-2 border-stone-300 shadow-lg max-w-[900px] sketchy-page">
 {inner}
 </div>
 </body>
@@ -112,30 +83,30 @@ def el_nav(content: str) -> str:
             continue
         label, href = parse_link(x)
         if href:
-            items.append(f'<a href="{href}" class="hover:underline text-primary">{label}</a>')
+            items.append(f'<a href="{href}" class="hover:underline text-stone-800">{label}</a>')
         else:
-            items.append(f'<span class="hover:underline cursor-default text-primary">{label}</span>')
-    return f'<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-border-medium text-[0.95em]">{"".join(items)}</nav>'
+            items.append(f'<span class="hover:underline cursor-default text-stone-800">{label}</span>')
+    return f'<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-stone-500 text-[0.95em]">{"".join(items)}</nav>'
 
 
 def el_heading(content: str) -> str:
-    return f'<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-primary">{content}</h2>'
+    return f'<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">{content}</h2>'
 
 
 def el_text(content: str) -> str:
-    return f'<p class="my-1.5 text-[0.95em] text-secondary">{content}</p>'
+    return f'<p class="my-1.5 text-[0.95em] text-stone-600">{content}</p>'
 
 
 def el_input(content: str) -> str:
     placeholder = content.strip() or "________"
-    return f'<div class="inline-block min-w-[200px] my-1.5 p-2.5 border-2 border-border-medium rounded bg-input text-placeholder italic">{placeholder}</div>'
+    return f'<div class="inline-block min-w-[200px] my-1.5 p-2.5 border-2 border-stone-500 rounded bg-neutral-50 text-stone-400 italic">{placeholder}</div>'
 
 
 def el_button(content: str) -> str:
     label, href = parse_link(content)
     if not label:
         label = "OK"
-    classes = "inline-block my-2 px-5 py-2 border-2 border-border-dark rounded-md bg-button cursor-default shadow-[1px_2px_0_var(--shadow-button)] active:shadow-none active:translate-x-px active:translate-y-0.5 text-primary no-underline"
+    classes = "inline-block my-2 px-5 py-2 border-2 border-stone-700 rounded-md bg-stone-200 cursor-default shadow-sm active:shadow-none active:translate-x-px active:translate-y-0.5 text-stone-800 no-underline"
     if href:
         return f'<a href="{href}" class="{classes}">{label}</a>'
     return f'<button class="{classes}">{label}</button>'
@@ -143,21 +114,21 @@ def el_button(content: str) -> str:
 
 def el_image(content: str) -> str:
     label = content.strip() or "img"
-    return f'<div class="flex items-center justify-center my-1.5 min-h-20 min-w-[80px] bg-image border-2 border-border-image text-muted text-[0.8em]" style="border-style:dashed">{label}</div>'
+    return f'<div class="flex items-center justify-center my-1.5 min-h-20 min-w-[80px] bg-stone-200 border-2 border-stone-400 text-stone-400 text-[0.8em]" style="border-style:dashed">{label}</div>'
 
 
 def el_select(content: str) -> str:
     label = content.strip() or "..."
-    return f'<div class="relative inline-block my-1.5 pr-7 pl-2.5 py-2 border-2 border-border-medium rounded bg-input">{label}<span class="absolute right-2 top-1/2 -translate-y-1/2">▾</span></div>'
+    return f'<div class="relative inline-block my-1.5 pr-7 pl-2.5 py-2 border-2 border-stone-500 rounded bg-neutral-50">{label}<span class="absolute right-2 top-1/2 -translate-y-1/2">▾</span></div>'
 
 
 def el_list(content: str) -> str:
-    return f'<li class="my-1 pl-4 list-disc text-primary">{content}</li>'
+    return f'<li class="my-1 pl-4 list-disc text-stone-800">{content}</li>'
 
 
 def el_divider(thick: bool = False) -> str:
     w = "3px" if thick else "2px"
-    c = "border-card" if thick else "border-light"
+    c = "stone-500" if thick else "stone-400"
     return f'<hr class="my-3 border-0 border-t-[{w}] border-{c} sketchy-divider">'
 
 
@@ -169,13 +140,19 @@ def el_badge(content: str) -> str:
         "badge-red": ("rejected error blocked red no unavailable withdrawn").split(),
         "badge-blue": ("info blue new updated note").split(),
     }
-    cls = "badge-grey"
+    cls = "grey"
     for k, words in mapping.items():
         if text in words:
-            cls = k
+            cls = k.replace("badge-", "")
             break
-    color = cls.replace("badge-", "")
-    return f'<span class="inline-block my-0.5 mx-1 px-3 py-0.5 text-[0.8em] font-bold rounded-xl border-2 bg-badge-{color} border-border-badge-{color} text-text-badge-{color}">{content.strip()}</span>'
+    classes = {
+        "green": "bg-green-100 border-green-500 text-green-700",
+        "amber": "bg-amber-100 border-amber-500 text-amber-700",
+        "red": "bg-red-100 border-red-500 text-red-700",
+        "blue": "bg-blue-100 border-blue-500 text-blue-700",
+        "grey": "bg-stone-100 border-stone-400 text-stone-600",
+    }[cls]
+    return f'<span class="inline-block my-0.5 mx-1 px-3 py-0.5 text-[0.8em] font-bold rounded-xl border-2 {classes}">{content.strip()}</span>'
 
 
 def el_alert(content: str) -> str:
@@ -188,11 +165,17 @@ def el_alert(content: str) -> str:
         color = "red"
     else:
         color = "blue"
-    return f'<div class="my-2.5 p-4 rounded-md border-2 text-[0.95em] bg-alert-{color} border-border-alert-{color} text-text-alert-{color}">{content.strip()}</div>'
+    classes = {
+        "green": "bg-green-100 border-green-500 text-green-700",
+        "amber": "bg-amber-100 border-amber-500 text-amber-700",
+        "red": "bg-red-100 border-red-500 text-red-700",
+        "blue": "bg-blue-100 border-blue-500 text-blue-700",
+    }[color]
+    return f'<div class="my-2.5 p-4 rounded-md border-2 text-[0.95em] {classes}">{content.strip()}</div>'
 
 
 def el_checkbox(content: str) -> str:
-    return f'<label class="flex items-center gap-2 my-1.5 text-[0.95em] text-primary"><span class="inline-block w-[18px] h-[18px] border-2 border-border-checkbox rounded-[3px] shrink-0"></span><span>{content.strip()}</span></label>'
+    return f'<label class="flex items-center gap-2 my-1.5 text-[0.95em] text-stone-800"><span class="inline-block w-[18px] h-[18px] border-2 border-stone-600 rounded-[3px] shrink-0"></span><span>{content.strip()}</span></label>'
 
 
 def split_cells(line: str) -> list[str]:
@@ -203,20 +186,20 @@ def split_cells(line: str) -> list[str]:
 
 def render_table(header_line: str, rows: list[str]) -> str:
     headers = split_cells(header_line)
-    header_html = "".join(f'<th class="px-3 py-2 border-2 border-border-medium text-left bg-table-header font-bold">{h}</th>' for h in headers)
+    header_html = "".join(f'<th class="px-3 py-2 border-2 border-stone-500 text-left bg-stone-200 font-bold">{h}</th>' for h in headers)
     rows_html = ""
     for idx, row in enumerate(rows):
         cells = split_cells(row)
-        bg = "bg-table-alt" if idx % 2 else ""
+        bg = "bg-stone-50" if idx % 2 else ""
         cell_html = ""
         for cell in cells:
             cell = cell.strip()
             if cell.startswith("v "):
-                cell_html += f'<td class="px-3 py-2 border-2 border-border-medium {bg}">{el_badge(cell[2:])}</td>'
+                cell_html += f'<td class="px-3 py-2 border-2 border-stone-500 {bg}">{el_badge(cell[2:])}</td>'
             elif cell.startswith("b "):
-                cell_html += f'<td class="px-3 py-2 border-2 border-border-medium {bg}">{el_button(cell[2:])}</td>'
+                cell_html += f'<td class="px-3 py-2 border-2 border-stone-500 {bg}">{el_button(cell[2:])}</td>'
             else:
-                cell_html += f'<td class="px-3 py-2 border-2 border-border-medium {bg}">{cell}</td>'
+                cell_html += f'<td class="px-3 py-2 border-2 border-stone-500 {bg}">{cell}</td>'
         rows_html += f'<tr>{cell_html}</tr>'
     return f'<div class="my-2.5 overflow-x-auto"><table class="w-full border-collapse text-[0.9em]"><thead><tr>{header_html}</tr></thead><tbody>{rows_html}</tbody></table></div>'
 
@@ -238,10 +221,17 @@ def indent_level(line: str) -> int:
     return len(line) - len(line.lstrip())
 
 
-def render(lines: list[str], theme_text: str) -> str:
+def render(lines: list[str], support_css: str) -> str:
     def render_lines(block_lines: list[str], start_idx: int = 0) -> tuple[str, int]:
         parts = []
+        list_items = []
         local_i = start_idx
+
+        def flush_list():
+            if list_items:
+                parts.append(f'<ul class="my-2 pl-5 list-disc">{"".join(list_items)}</ul>')
+                list_items.clear()
+
         while local_i < len(block_lines):
             raw = block_lines[local_i]
             local_i += 1
@@ -252,32 +242,45 @@ def render(lines: list[str], theme_text: str) -> str:
             lv = indent_level(raw)
 
             if typ == "n":
+                flush_list()
                 parts.append(el_nav(content))
             elif typ == "h":
+                flush_list()
                 parts.append(el_heading(content))
             elif typ == "t":
+                flush_list()
                 parts.append(el_text(content))
             elif typ == "i":
+                flush_list()
                 parts.append(el_input(content))
             elif typ == "b":
+                flush_list()
                 parts.append(el_button(content))
             elif typ == "x":
+                flush_list()
                 parts.append(el_image(content))
             elif typ == "s":
+                flush_list()
                 parts.append(el_select(content))
             elif typ == "l":
-                parts.append(el_list(content))
+                list_items.append(el_list(content))
             elif typ == "-":
+                flush_list()
                 parts.append(el_divider())
             elif typ == "=":
+                flush_list()
                 parts.append(el_divider(thick=True))
             elif typ == "v":
+                flush_list()
                 parts.append(el_badge(content))
             elif typ == "a":
+                flush_list()
                 parts.append(el_alert(content))
             elif typ == "k":
+                flush_list()
                 parts.append(el_checkbox(content))
             elif typ == "g":
+                flush_list()
                 row_lines = []
                 while local_i < len(block_lines):
                     nxt = block_lines[local_i]
@@ -290,6 +293,7 @@ def render(lines: list[str], theme_text: str) -> str:
                     local_i += 1
                 parts.append(render_table(content, row_lines))
             elif typ == "c":
+                flush_list()
                 child_lines = []
                 while local_i < len(block_lines):
                     nxt = block_lines[local_i]
@@ -301,8 +305,9 @@ def render(lines: list[str], theme_text: str) -> str:
                     child_lines.append(nxt)
                     local_i += 1
                 inner, _ = render_lines(child_lines, 0)
-                parts.append(f'<div class="card my-3 p-4 border-2 border-border-card rounded-md bg-card sketchy-card">{inner}</div>')
+                parts.append(f'<div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card">{inner}</div>')
             elif typ == "r":
+                flush_list()
                 child_lines = []
                 while local_i < len(block_lines):
                     nxt = block_lines[local_i]
@@ -316,11 +321,12 @@ def render(lines: list[str], theme_text: str) -> str:
                 inner, _ = render_lines(child_lines, 0)
                 parts.append(f'<div class="flex gap-4 items-start flex-wrap">{inner}</div>')
             else:
-                parts.append(el_text(raw.lstrip()))
+                raise ValueError(f"Unknown Wirecup element type {typ!r}: {raw.lstrip()}")
+        flush_list()
         return "\n".join(parts), local_i
 
     result, _ = render_lines(lines, 0)
-    return page_wrap(theme_text, result)
+    return page_wrap(support_css, result)
 
 
 # ── Live Reload Server ─────────────────────────────────────────────
@@ -359,19 +365,23 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-def dev_server(cup_path: Path, out_path: Path, theme_text: str, port: int):
-    last_mtime = 0.0
+def dev_server(cup_path: Path, out_path: Path, port: int):
+    cup_path = cup_path.resolve()
+    out_path = out_path.resolve()
+    support_css_path = (Path(__file__).parent / "wirecup.css").resolve()
+    last_mtimes = (0.0, 0.0)
 
     def rebuild():
-        nonlocal last_mtime
+        nonlocal last_mtimes
         text = cup_path.read_text()
         lines = text.splitlines()
-        html = render(lines, theme_text)
+        support_css = support_css_path.read_text()
+        html = render(lines, support_css)
         html = html.replace('</body>', RELOAD_SCRIPT + '\n</body>')
         out_path.write_text(html)
         LiveReloadHandler.reload_time = time.time()
         print(f"  Reloaded {out_path.name}")
-        last_mtime = cup_path.stat().st_mtime
+        last_mtimes = (cup_path.stat().st_mtime, support_css_path.stat().st_mtime)
 
     rebuild()
 
@@ -382,14 +392,16 @@ def dev_server(cup_path: Path, out_path: Path, theme_text: str, port: int):
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
 
-    print(f"\n  Serving at http://localhost:{port}/{out_path.name}")
+    url = f"http://localhost:{port}/{out_path.name}"
+    print(f"\n  Serving at {url}")
     print("  Watching for changes... (Ctrl+C to stop)\n")
+    webbrowser.open(url)
 
     try:
         while True:
             time.sleep(0.5)
-            current_mtime = cup_path.stat().st_mtime
-            if current_mtime != last_mtime:
+            current_mtimes = (cup_path.stat().st_mtime, support_css_path.stat().st_mtime)
+            if current_mtimes != last_mtimes:
                 rebuild()
     except KeyboardInterrupt:
         server.shutdown()
@@ -400,16 +412,14 @@ def dev_server(cup_path: Path, out_path: Path, theme_text: str, port: int):
 
 def main():
     p = argparse.ArgumentParser(
-        description="Render wirecup .cup files to HTML. Default: dev server with live reload."
+        description="Render, serve, watch, and open a Wirecup .cup file."
     )
     p.add_argument("file", help="Input .cup file")
     p.add_argument("-o", "--output", help="Output HTML file name (default: auto)")
-    p.add_argument("-b", "--build", action="store_true", help="One-off render, no server")
     p.add_argument("-p", "--port", type=int, default=8765, help="Dev server port (default: 8765)")
     p.add_argument("-d", "--out-dir", help="Base output directory. HTML goes to <dir>/html/")
     args = p.parse_args()
 
-    theme_text = load_theme()
     in_path = Path(args.file)
     stem = in_path.stem
 
@@ -424,14 +434,7 @@ def main():
         else:
             out_path = in_path.with_suffix(".html")
 
-    if args.build:
-        text = in_path.read_text()
-        lines = text.splitlines()
-        html = render(lines, theme_text)
-        out_path.write_text(html)
-        print(f"Wrote HTML: {out_path}")
-    else:
-        dev_server(in_path, out_path, theme_text, args.port)
+    dev_server(in_path, out_path, args.port)
 
 
 if __name__ == "__main__":
