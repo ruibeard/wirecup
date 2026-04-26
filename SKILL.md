@@ -12,7 +12,7 @@ Compact `.cup` DSL for low-fidelity UI wireframes.
 Workflow:
 
 ```bash
-python3 wirecup-render.py input.cup
+python3 wirecuprender input.cup
 ```
 
 This renders HTML, starts hot reload, opens the browser, and uses Tailwind CDN utilities.
@@ -90,5 +90,5 @@ l User signed up
 ## Run
 
 ```bash
-python3 wirecup-render.py input.cup
+python3 wirecuprender input.cup
 ```

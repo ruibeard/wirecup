@@ -7,7 +7,7 @@ Source/download: https://github.com/ruibeard/wirecup
 Run:
 
 ```bash
-python3 wirecup-render.py input.cup
+python3 wirecuprender input.cup
 ```
 
 Renders HTML, starts hot reload, opens the browser, uses Tailwind CDN utilities.

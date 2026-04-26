@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Simple entrypoint for the Wirecup dev renderer."""
+
+import importlib.util
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parent
+RENDERER_PATH = ROOT / "wirecup-render.py"
+
+
+def load_renderer():
+    spec = importlib.util.spec_from_file_location("wirecup_render", RENDERER_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load {RENDERER_PATH.name}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+if __name__ == "__main__":
+    load_renderer().main()

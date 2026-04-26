@@ -43,12 +43,13 @@ def css(support_css: str) -> str:
     return f'{tailwind_config()}\n<script src="https://cdn.tailwindcss.com"></script>\n<style>\n{support_css}\n</style>'
 
 
-def page_wrap(support_css: str, inner: str) -> str:
+def page_wrap(support_css: str, inner: str, title: str) -> str:
     return f"""<!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
 {css(support_css)}
 </head>
 <body class="min-h-screen p-8 md:p-12 font-kalam bg-stone-100">
@@ -221,7 +222,7 @@ def indent_level(line: str) -> int:
     return len(line) - len(line.lstrip())
 
 
-def render(lines: list[str], support_css: str) -> str:
+def render(lines: list[str], support_css: str, title: str = "Wirecup") -> str:
     def render_lines(block_lines: list[str], start_idx: int = 0) -> tuple[str, int]:
         parts = []
         list_items = []
@@ -326,7 +327,7 @@ def render(lines: list[str], support_css: str) -> str:
         return "\n".join(parts), local_i
 
     result, _ = render_lines(lines, 0)
-    return page_wrap(support_css, result)
+    return page_wrap(support_css, result, title)
 
 
 # ── Live Reload Server ─────────────────────────────────────────────
@@ -365,6 +366,10 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
+
 def dev_server(cup_path: Path, out_path: Path, port: int):
     cup_path = cup_path.resolve()
     out_path = out_path.resolve()
@@ -376,7 +381,7 @@ def dev_server(cup_path: Path, out_path: Path, port: int):
         text = cup_path.read_text()
         lines = text.splitlines()
         support_css = support_css_path.read_text()
-        html = render(lines, support_css)
+        html = render(lines, support_css, cup_path.stem)
         html = html.replace('</body>', RELOAD_SCRIPT + '\n</body>')
         out_path.write_text(html)
         LiveReloadHandler.reload_time = time.time()
@@ -388,7 +393,7 @@ def dev_server(cup_path: Path, out_path: Path, port: int):
     serve_dir = out_path.parent.resolve()
     os.chdir(serve_dir)
 
-    server = socketserver.TCPServer(("", port), LiveReloadHandler)
+    server = ReusableTCPServer(("", port), LiveReloadHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
 
