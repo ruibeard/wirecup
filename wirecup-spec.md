@@ -166,16 +166,3 @@ Render a file with:
 ```bash
 python wirecup-render.py input.cup -o output.html
 ```
-
-Use a built-in theme with:
-
-```bash
-python wirecup-render.py input.cup -o output.html -t clean
-```
-
-Supported built-in themes:
-- `default`
-- `dark`
-- `clean`
-
-The renderer also accepts an explicit path to a theme JSON file.

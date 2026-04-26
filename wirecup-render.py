@@ -3,7 +3,7 @@
 wirecup-render.py — Render .cup files to HTML wireframes (Tailwind edition)
 
 Usage:
-    python wirecup-render.py file.cup [-o out.html] [--theme theme.json] [--out-dir ./dist]
+    python wirecup-render.py file.cup [-o out.html] [--out-dir ./dist]
 
 Folder layout when using --out-dir:
     dist/
@@ -15,112 +15,11 @@ import json
 import argparse
 from pathlib import Path
 
-# ── Default Theme ──────────────────────────────────────────────────
 
-DEFAULT_THEME = {
-    "fonts": {
-        "primary": "Kalam",
-        "fallback": "Comic Sans MS, cursive, sans-serif",
-        "google_url": "https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap"
-    },
-    "colors": {
-        "bg_page": "#f5f5f0",
-        "bg_card": "#fffef8",
-        "bg_input": "#fafafa",
-        "bg_button": "#eee",
-        "bg_image": "#e8e8e8",
-        "bg_badge_green": "#e6f4ea",
-        "bg_badge_amber": "#fef3e8",
-        "bg_badge_red": "#fce8e8",
-        "bg_badge_blue": "#e8f0fe",
-        "bg_badge_grey": "#f1f3f4",
-        "bg_alert_green": "#e6f4ea",
-        "bg_alert_amber": "#fef3e8",
-        "bg_alert_red": "#fce8e8",
-        "bg_alert_blue": "#e8f0fe",
-        "bg_table_header": "#f0f0e8",
-        "bg_table_alt": "#fafaf5",
-        "text_primary": "#333",
-        "text_secondary": "#555",
-        "text_muted": "#999",
-        "text_placeholder": "#bbb",
-        "text_badge_green": "#137333",
-        "text_badge_amber": "#b06000",
-        "text_badge_red": "#a50e0e",
-        "text_badge_blue": "#174ea6",
-        "text_badge_grey": "#5f6368",
-        "text_alert_green": "#137333",
-        "text_alert_amber": "#b06000",
-        "text_alert_red": "#a50e0e",
-        "text_alert_blue": "#174ea6",
-        "border_page": "#ccc",
-        "border_light": "#aaa",
-        "border_medium": "#888",
-        "border_dark": "#555",
-        "border_card": "#777",
-        "border_image": "#aaa",
-        "border_badge_green": "#34a853",
-        "border_badge_amber": "#f9ab00",
-        "border_badge_red": "#ea4335",
-        "border_badge_blue": "#4285f4",
-        "border_badge_grey": "#9aa0a6",
-        "border_alert_green": "#34a853",
-        "border_alert_amber": "#f9ab00",
-        "border_alert_red": "#ea4335",
-        "border_alert_blue": "#4285f4",
-        "border_checkbox": "#666",
-        "shadow": "rgba(0,0,0,0.1)",
-        "shadow_button": "#bbb"
-    },
-    "sketchy": {
-        "page_rotation": -0.3,
-        "card_rotation": 0.2,
-        "card_rotation_alt": -0.1,
-        "divider_rotation": -0.1
-    },
-    "layout": {
-        "page_width": "900px",
-        "page_padding": "30px",
-        "card_padding": "14px",
-        "card_margin": "10px 0",
-        "card_radius": "6px",
-        "button_padding": "8px 18px",
-        "button_radius": "6px",
-        "input_padding": "8px 10px",
-        "input_radius": "4px",
-        "image_min_height": "80px",
-        "image_border": "dashed",
-        "alert_padding": "12px 16px",
-        "alert_radius": "6px",
-        "badge_padding": "3px 10px",
-        "badge_radius": "12px",
-        "table_padding": "8px 12px"
-    }
-}
-
-
-def load_theme(path: str | None) -> dict:
-    if not path:
-        return DEFAULT_THEME
-    p = Path(path)
-    if not p.exists():
-        p = Path(__file__).parent / "themes" / path
-        if not p.exists() and not p.suffix:
-            p = p.with_suffix(".json")
-        if not p.exists():
-            raise FileNotFoundError(f"Theme not found: {path}")
+def load_theme() -> dict:
+    p = Path(__file__).parent / "theme.json"
     with open(p, "r") as f:
-        user = json.load(f)
-    theme = {
-        "fonts": {**DEFAULT_THEME["fonts"]},
-        "colors": {**DEFAULT_THEME["colors"]},
-        "sketchy": {**DEFAULT_THEME["sketchy"]},
-        "layout": {**DEFAULT_THEME["layout"]},
-    }
-    for section in ("fonts", "colors", "sketchy", "layout"):
-        if section in user:
-            theme[section].update(user[section])
-    return theme
+        return json.load(f)
 
 
 # ── CSS Generation (Tailwind + theme vars) ─────────────────────────
@@ -229,8 +128,7 @@ def el_button(content: str) -> str:
 
 def el_image(content: str) -> str:
     label = content.strip() or "img"
-    border_style = "dashed" if "dashed" in str(DEFAULT_THEME["layout"]["image_border"]) else "solid"
-    return f'<div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:{border_style}">{label}</div>'
+    return f'<div class="flex items-center justify-center my-1.5 min-h-[var(--image-min-height)] min-w-[80px] bg-[var(--bg-image)] border-2 border-[var(--border-image)] text-[var(--text-muted)] text-[0.8em]" style="border-style:dashed">{label}</div>'
 
 
 def el_select(content: str) -> str:
@@ -420,11 +318,10 @@ def main():
     p = argparse.ArgumentParser(description="Render wirecup .cup files to HTML")
     p.add_argument("file", help="Input .cup file")
     p.add_argument("-o", "--output", help="Output HTML file name (default: auto)")
-    p.add_argument("-t", "--theme", help="Theme JSON file (or name in themes/ dir)")
     p.add_argument("-d", "--out-dir", help="Base output directory. HTML goes to <dir>/html/, PNGs to <dir>/png/")
     args = p.parse_args()
 
-    theme = load_theme(args.theme)
+    theme = load_theme()
     text = Path(args.file).read_text()
     lines = text.splitlines()
     html = render(lines, theme)
