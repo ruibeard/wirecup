@@ -74,4 +74,19 @@ g Col1  Col2  Col3
   val1  v Active  b Open|page
 ```
 
-Full spec: `docs/wirecup-spec.md`
+Full spec: `wirecup-spec.md`
+
+## MCP server
+
+An MCP server that exposes `render` and `create` tools is available at:
+https://github.com/ruibeard/wirecup-mcp
+
+```bash
+git clone https://github.com/ruibeard/wirecup-mcp
+cd wirecup-mcp && npm install && npm run build && npm link
+```
+
+Configure in `.opencode/config.json`:
+```json
+{ "mcp": { "wirecup": { "type": "local", "command": ["npx", "wirecup-mcp"] } } }
+```
