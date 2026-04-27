@@ -3,5 +3,7 @@ node_modules/
 __pycache__/
 *.pyc
 build/
-dist/
+dist/*
+!dist/wirecup
 .DS_Store
+.venv/
