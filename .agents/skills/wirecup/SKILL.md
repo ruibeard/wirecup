@@ -11,7 +11,7 @@ This skill is the canonical spec and operating guide.
 
 ## Bootstrap
 
-If the project does not already have `wirecuprender` and `wirecup.css`, fetch them:
+If the project does not already have `wirecup` and `wirecup.css`, fetch them:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install.sh | bash
@@ -22,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install.sh | 
 Run the preview server:
 
 ```bash
-python3 wirecuprender
+./wirecup .
 ```
 
 What it does:
@@ -51,7 +51,7 @@ Route behavior:
 Optional:
 
 ```bash
-python3 wirecuprender --save
+./wirecup . --save
 ```
 
 That also writes `.html` files next to the `.cup` files.

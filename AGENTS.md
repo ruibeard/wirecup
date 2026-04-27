@@ -3,7 +3,7 @@
 Compact `.cup` DSL for low-fidelity UI wireframes.
 
 ```bash
-python3 wirecuprender input.cup
+./wirecup .
 ```
 
-Serves the rendered HTML from memory, watches the file, and opens it in the browser.
+Serves the `.agents/.cup` preview from memory, watches the project, and opens it in the browser.
