@@ -1,66 +1,98 @@
 # Wirecup
 
-A minimal DSL for low-fidelity UI wireframes. Write `.cup` files and see live HTML previews in your browser.
+Text-based wireframe language for rapid low-fidelity mockups.
 
-## Quick Start
+## Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install | bash
 ```
 
-That's it. Browser opens at `http://localhost:8765/`. Edit `.agents/.cup/*.cup` files and see changes live.
-
-## Installation
-
-The one-liner does:
-
-1. Downloads `wirecup` (executable Python script)
-2. Downloads `wirecup.css` (styling)
-3. Creates `.agents/.cup/` directory
-4. Runs `./wirecup .` to start dev server
-
 ## Usage
 
-### Development Mode
+### Watch & Preview
 
 ```bash
-./wirecup [project_dir] [-p PORT] [--save]
+./wirecup .
 ```
 
-**Flags:**
-- `-p PORT` - port to serve on (default: 8765)
-- `--save` - also write `.html` files alongside `.cup` files
+Opens `http://localhost:8765` with live reload. Edit files in `.wirecup/` and see changes instantly.
 
-**What it does:**
-- Watches `.agents/.cup/` for changes
-- Live-reloads in browser
-- Opens browser automatically
-
-### One-shot Rendering
+### Render Single File
 
 ```bash
-./wirecup --render < input.cup > output.html
+./wirecup input.cup
 ```
 
-Read `.cup` from stdin, write HTML to stdout.
+Generates `input.html` in the same directory.
 
-## Project Structure
+### Preview in Browser
+
+```bash
+./wirecup --web input.cup
+```
+
+Opens rendered mockup in browser, closes when you press Enter.
+
+### Flags
+
+- `-p PORT` - custom port (default: 8765)
+- `--watch DIR` - watch custom directory
+
+## What It Does
+
+Watches `.agents/.cup/` for `.cup` files. Each file becomes a clickable route. Renders to HTML mockups instantly. Hot-reloads in browser.
+
+## Syntax
+
+One character per line = one UI element.
 
 ```
-your-project/
-├── wirecup              # Executable script (Python)
-├── wirecup.css          # Styling
-└── .agents/
-    └── .cup/            # Your wireframe files
-        ├── page1.cup
-        ├── page2.cup
-        └── _includes/   # Shared snippets
+h Heading
+t Paragraph text
+i Input field
+b Button|/next-page
+n nav link|/ about|/about
+x Image placeholder
+s Select dropdown
+l List item
+v Badge
+a Alert box
+k Checkbox
+c Card (indent children)
+r Row/flex (indent children)
+g Grid/table (indent rows)
+- Divider
+= Thick divider
 ```
+
+## Example
+
+Create `.wirecup/login.cup`:
+
+```
+h Login
+t Enter credentials
+i Email
+i Password
+b Sign In|dashboard
+```
+
+Run `./wirecup .` → visit `http://localhost:8765/` → click "login.cup" → see it rendered.
+
+Click "Sign In" button → navigates to `/dashboard` route.
+
+## Use With AI
+
+The install includes `.agents/skills/wirecup/SKILL.md` for OpenCode/LLM integration.
+
+Tell an LLM: *"Use the wirecup skill to write a mockup for [description]"*
+
+The LLM writes `.cup` files to `.wirecup/`. You see them render live at `http://localhost:8765`.
 
 ## Requirements
 
-- Python 3.7+
-- Any OS (macOS, Linux, Windows)
+- macOS (arm64)
 
 ## License
 

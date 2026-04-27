@@ -19,17 +19,8 @@ from watchdog.events import FileSystemEventHandler
 
 APP_ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
 PROJECT_ROOT = Path.cwd()
-CUP_DIR = PROJECT_ROOT / ".agents" / ".cup"
+CUP_DIR = PROJECT_ROOT / ".wirecup"
 INCLUDE_DIR = CUP_DIR / "_includes"
-BALLOT_NAV_ITEMS = (
-    ("Overview", "ballot-overview"),
-    ("Setup", "setup"),
-    ("Apply", "student-application"),
-    ("Household", "household"),
-    ("Special", "special-requirements"),
-    ("Queue", "ballot-queue"),
-    ("Selection", "room-selection"),
-)
 
 LINK_PREFIX = "/"
 LINK_SUFFIX = ""
@@ -47,7 +38,7 @@ def support_css_path() -> Path:
 def set_project_root(path: Path) -> None:
     global PROJECT_ROOT, CUP_DIR, INCLUDE_DIR
     PROJECT_ROOT = path.expanduser().resolve()
-    CUP_DIR = PROJECT_ROOT / ".agents" / ".cup"
+    CUP_DIR = PROJECT_ROOT / ".wirecup"
     INCLUDE_DIR = CUP_DIR / "_includes"
 
 
@@ -174,16 +165,6 @@ def resolve_include(content: str) -> list[str]:
         raise ValueError("Include line must specify a snippet name")
     name = parts[0]
     args = parts[1:]
-
-    if name == "ballot-nav":
-        current = args[0] if args else ""
-        items = []
-        for label, target in BALLOT_NAV_ITEMS:
-            if target == current:
-                items.append(label)
-            else:
-                items.append(f"{label}|{target}")
-        return [f"n {'  '.join(items)}"]
 
     include_path = INCLUDE_DIR / f"{name}.cup"
     if not include_path.exists():
@@ -314,15 +295,9 @@ def render(lines: list[str], support_css: str, title: str) -> str:
 RELOAD_SCRIPT = """
 <script>
 (function(){
-  let last = 0;
-  setInterval(async () => {
-    try {
-      const r = await fetch('/__wirecup_reload?t=' + Date.now());
-      const j = await r.json();
-      if (last && j.t !== last) location.reload();
-      last = j.t;
-    } catch (e) {}
-  }, 400);
+  const eventSource = new EventSource('/__wirecup_events');
+  eventSource.onmessage = () => location.reload();
+  eventSource.onerror = () => eventSource.close();
 })();
 </script>
 """
@@ -472,10 +447,26 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
     cup_name: str = ""
     current_route: str = "/"
     reload_time: float = 0.0
+    sse_clients: list = []
 
     def do_GET(self):
         parsed = urllib.parse.urlsplit(self.path)
         path = parsed.path
+        if path == "/__wirecup_events":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.end_headers()
+            LiveReloadHandler.sse_clients.append(self.wfile)
+            try:
+                while True:
+                    time.sleep(1)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+            finally:
+                LiveReloadHandler.sse_clients.remove(self.wfile)
+            return
         if path.startswith("/__wirecup_reload"):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
@@ -515,9 +506,13 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         if path.startswith("/") and path.count("/") == 1 and "." not in path.strip("/"):
-            LiveReloadHandler.current_route = path
-            rebuild_current()
-            body = self.html.encode()
+            # If it's "/" show the preview shell, otherwise show the route preview
+            if path == "/":
+                body = preview_shell().encode()
+            else:
+                LiveReloadHandler.current_route = path
+                rebuild_current()
+                body = self.html.encode()
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -599,13 +594,27 @@ def rebuild_current():
         LiveReloadHandler.cup_name = ""
         LiveReloadHandler.html = page_wrap(
             support_css_path().read_text(),
-            '<p class="text-stone-600">No .cup files yet. Write one into .agents/.cup/</p>',
+            '<p class="text-stone-600">No .cup files yet. Write one into .wirecup/</p>',
             "wirecup",
         ).replace("</body>", RELOAD_SCRIPT + "\n</body>")
         return
     html = render_cup_file(cup_path)
     LiveReloadHandler.cup_name = cup_path.name
     LiveReloadHandler.html = html
+
+
+def broadcast_reload():
+    """Send reload event to all connected SSE clients"""
+    message = b"data: reload\n\n"
+    disconnected = []
+    for wfile in LiveReloadHandler.sse_clients:
+        try:
+            wfile.write(message)
+            wfile.flush()
+        except (BrokenPipeError, ConnectionResetError):
+            disconnected.append(wfile)
+    for wfile in disconnected:
+        LiveReloadHandler.sse_clients.remove(wfile)
 
 
 def dev_server(port: int, save: bool):
@@ -643,6 +652,7 @@ def dev_server(port: int, save: bool):
             cup_path.with_suffix(".html").write_text(LiveReloadHandler.html)
         LiveReloadHandler.reload_time = time.time()
         print(f"Reloaded {LiveReloadHandler.cup_name or '.agents/.cup'}")
+        broadcast_reload()
 
     if not CUP_DIR.exists():
         CUP_DIR.mkdir(parents=True, exist_ok=True)
@@ -691,37 +701,45 @@ def dev_server(port: int, save: bool):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Watch PROJECT/.agents/.cup, render the latest .cup file, and open it in the browser.")
-    parser.add_argument("project", nargs="?", type=Path, default=Path("."), help="Project folder to watch")
-    parser.add_argument("-p", "--port", type=int, default=8765, help="Port to serve on")
-    parser.add_argument("--save", action="store_true", help="Also write rendered HTML next to the input file")
-    parser.add_argument("--render", action="store_true", help="One-shot mode: read .cup from stdin, write HTML to stdout")
-    parser.add_argument("--title", default="Wirecup", help="Page title (one-shot mode)")
-    parser.add_argument("--css-file", type=Path, default=None, help="Path to CSS file (one-shot mode)")
-    parser.add_argument("--root", type=Path, default=None, help="Root directory for includes (one-shot mode)")
-    parser.add_argument("--link-prefix", default="/", help="Prefix for relative links (one-shot mode)")
-    parser.add_argument("--link-suffix", default="", help="Suffix for relative links (one-shot mode)")
-    parser.add_argument("--nav-prefix", default="/", help="Prefix for nav links (one-shot mode)")
-    parser.add_argument("--nav-suffix", default="", help="Suffix for nav links (one-shot mode)")
+    parser = argparse.ArgumentParser(description="Wirecup - text-based wireframe renderer", add_help=True)
+    parser.add_argument("target", nargs="?", default=".", help="Directory to watch (default: .) or .cup file to render")
+    parser.add_argument("--web", action="store_true", help="Open in browser (for .cup files)")
+    parser.add_argument("-p", "--port", type=int, default=8765, help="Port for server (default: 8765)")
     args = parser.parse_args()
-    set_project_root(args.project)
-
-    if args.render:
-        global LINK_PREFIX, LINK_SUFFIX, NAV_PREFIX, NAV_SUFFIX
-        LINK_PREFIX = args.link_prefix
-        LINK_SUFFIX = args.link_suffix
-        NAV_PREFIX = args.nav_prefix
-        NAV_SUFFIX = args.nav_suffix
-        cup_text = sys.stdin.read()
-        css_path = args.css_file or support_css_path()
+    
+    target = Path(args.target).resolve()
+    
+    # Auto-detect: is it a directory or a file?
+    if target.is_dir():
+        # Watch mode
+        set_project_root(target)
+        dev_server(args.port, save=False)
+    elif target.is_file() and target.suffix == ".cup":
+        # Render mode
+        cup_text = target.read_text()
+        css_path = target.parent / "wirecup.css"
+        if not css_path.exists():
+            css_path = support_css_path()
         support_css = css_path.read_text() if css_path.exists() else ""
-        if args.root:
-            set_project_root(args.root)
-        html = render(cup_text.splitlines(), support_css, args.title)
-        print(html)
-        return
-
-    dev_server(args.port, save=args.save)
+        html = render(cup_text.splitlines(), support_css, target.stem)
+        
+        if args.web:
+            # Open in browser temporarily
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False) as f:
+                f.write(html)
+                temp_path = f.name
+            webbrowser.open(f"file://{temp_path}")
+            input("Press Enter to exit...")
+            os.unlink(temp_path)
+        else:
+            # Write to HTML file
+            output_path = target.with_suffix(".html")
+            output_path.write_text(html)
+            print(f"Rendered {output_path}")
+    else:
+        print(f"Error: {target} is not a directory or .cup file")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
