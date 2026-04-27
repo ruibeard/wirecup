@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build standalone wirecup binary from wirecup.py
-source .venv/bin/activate
-rm -rf build dist
-pyinstaller wirecup.spec
-cp dist/wirecup wirecup
-
-echo "Built and copied to: wirecup"
-echo "Run: ./wirecup ."
+# Rebuild script - no longer needed since we use Python source directly
+# Kept for reference in case we need to compile in the future
+echo "Note: wirecup.py is used directly as an executable (has shebang)"
+echo "No compilation needed"
