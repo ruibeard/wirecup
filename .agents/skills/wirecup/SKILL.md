@@ -81,6 +81,7 @@ The space after the type character is optional.
 | `v` | badge | small neutral pill |
 | `a` | alert | neutral message box |
 | `k` | checkbox | checkbox row |
+| `u` | include | reusable snippet or built-in helper |
 | `c` | card | container for indented children |
 | `r` | row | horizontal flex group for indented children |
 | `g` | grid | table-like block |
@@ -108,6 +109,22 @@ Target resolution rules:
 - `target.cup` becomes `/target`
 - `target` becomes `/target`
 - if there is no `|target`, the item is non-navigating
+
+### Includes
+
+`u` expands a reusable snippet.
+
+Built-in:
+
+- `u ballot-nav current-route`
+
+This renders the shared ballot navigation and leaves the current route non-clickable.
+
+Custom snippets:
+
+- create `.agents/.cup/_includes/name.cup`
+- reference it with `u name arg1 arg2`
+- use `$1`, `$2`, and `$*` inside the include file
 
 ### Lists
 
@@ -140,6 +157,15 @@ Grid cell rules:
 - cells starting with `v ` render as badges
 - cells starting with `b ` render as buttons
 - other cell text renders as plain text
+- cells may be separated by tabs or by 2 or more spaces
+
+### Compact mode
+
+For lower token usage:
+
+- omit the space after the element character, for example `hTitle`
+- use minimal indentation, for example one space per level
+- prefer tabs in `g` header and row cells
 
 ### Alerts and badges
 

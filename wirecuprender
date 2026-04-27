@@ -14,6 +14,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CUP_DIR = ROOT / ".agents" / ".cup"
+INCLUDE_DIR = CUP_DIR / "_includes"
+BALLOT_NAV_ITEMS = (
+    ("Overview", "ballot-overview"),
+    ("Setup", "setup"),
+    ("Apply", "student-application"),
+    ("Household", "household"),
+    ("Special", "special-requirements"),
+    ("Queue", "ballot-queue"),
+    ("Selection", "room-selection"),
+)
 
 
 def page_wrap(support_css: str, inner: str, title: str) -> str:
@@ -128,7 +138,36 @@ def el_checkbox(content: str) -> str:
 
 
 def split_cells(line: str) -> list[str]:
-    return [part.strip() for part in re.split(r"  +", line.strip()) if part.strip()]
+    return [part.strip() for part in re.split(r"\t+|  +", line.strip()) if part.strip()]
+
+
+def resolve_include(content: str) -> list[str]:
+    parts = content.split()
+    if not parts:
+        raise ValueError("Include line must specify a snippet name")
+    name = parts[0]
+    args = parts[1:]
+
+    if name == "ballot-nav":
+        current = args[0] if args else ""
+        items = []
+        for label, target in BALLOT_NAV_ITEMS:
+            if target == current:
+                items.append(label)
+            else:
+                items.append(f"{label}|{target}")
+        return [f"n {'  '.join(items)}"]
+
+    include_path = INCLUDE_DIR / f"{name}.cup"
+    if not include_path.exists():
+        raise ValueError(f"Unknown Wirecup include {name!r}")
+
+    template = include_path.read_text()
+    replacements = {"$*": " ".join(args)}
+    replacements.update({f"${index}": arg for index, arg in enumerate(args, start=1)})
+    for key, value in replacements.items():
+        template = template.replace(key, value)
+    return template.splitlines()
 
 
 def render_table(header_line: str, rows: list[str]) -> str:
@@ -219,6 +258,11 @@ def render(lines: list[str], support_css: str, title: str) -> str:
             elif kind in simple:
                 flush_list()
                 parts.append(simple[kind](content))
+            elif kind == "u":
+                flush_list()
+                include_lines = resolve_include(content)
+                inner, _ = render_lines(include_lines, 0)
+                parts.append(inner)
             elif kind in {"c", "r", "g"}:
                 flush_list()
                 children, index = collect_children(block_lines, index, level)
