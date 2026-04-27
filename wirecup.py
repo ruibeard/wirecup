@@ -651,7 +651,8 @@ def dev_server(port: int, save: bool):
         if save and cup_path is not None:
             cup_path.with_suffix(".html").write_text(LiveReloadHandler.html)
         LiveReloadHandler.reload_time = time.time()
-        print(f"Reloaded {LiveReloadHandler.cup_name or '.agents/.cup'}")
+        print(f"Reloaded {LiveReloadHandler.cup_name or '.wirecup'}", flush=True)
+        sys.stdout.flush()
         broadcast_reload()
 
     if not CUP_DIR.exists():
@@ -666,7 +667,8 @@ def dev_server(port: int, save: bool):
     threading.Thread(target=server.serve_forever, daemon=True).start()
 
     url = f"http://localhost:{port}/"
-    print(url)
+    print(url, flush=True)
+    sys.stdout.flush()
     
     # Set up watchdog observer
     observer = Observer()
