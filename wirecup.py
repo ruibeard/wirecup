@@ -13,6 +13,8 @@ import time
 import urllib.parse
 import webbrowser
 from pathlib import Path
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 
 APP_ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
@@ -539,7 +541,7 @@ def route_name(path: str) -> str:
 
 
 def watch_state(*paths: Path) -> tuple[float, ...]:
-    return tuple(path.stat().st_mtime for path in paths)
+    return tuple(path.stat().st_mtime for path in paths if path.exists())
 
 
 def cup_files() -> list[Path]:
@@ -608,8 +610,25 @@ def rebuild_current():
 
 def dev_server(port: int, save: bool):
     css_path = support_css_path()
-    last_state = ()
-
+    rebuild_event = threading.Event()
+    rebuild_event.set()  # Initial rebuild on start
+    
+    class CupFileWatcher(FileSystemEventHandler):
+        def on_modified(self, event):
+            if event.is_directory:
+                return
+            path = Path(event.src_path)
+            # Watch .cup files and wirecup.css
+            if path.suffix == ".cup" or path.name == "wirecup.css":
+                rebuild_event.set()
+        
+        def on_created(self, event):
+            if event.is_directory:
+                return
+            path = Path(event.src_path)
+            if path.suffix == ".cup" or path.name == "wirecup.css":
+                rebuild_event.set()
+    
     def watched_paths() -> list[Path]:
         paths = [css_path]
         paths.extend(cup_files())
@@ -618,14 +637,11 @@ def dev_server(port: int, save: bool):
         return paths
 
     def rebuild():
-        nonlocal last_state
         rebuild_current()
         cup_path = cup_for_route(LiveReloadHandler.current_route)
         if save and cup_path is not None:
             cup_path.with_suffix(".html").write_text(LiveReloadHandler.html)
         LiveReloadHandler.reload_time = time.time()
-        paths = watched_paths()
-        last_state = watch_state(*paths) if paths else ()
         print(f"Reloaded {LiveReloadHandler.cup_name or '.agents/.cup'}")
 
     if not CUP_DIR.exists():
@@ -642,6 +658,15 @@ def dev_server(port: int, save: bool):
     url = f"http://localhost:{port}/"
     print(url)
     
+    # Set up watchdog observer
+    observer = Observer()
+    event_handler = CupFileWatcher()
+    
+    # Watch .agents/.cup and also watch project root for wirecup.css changes
+    observer.schedule(event_handler, str(CUP_DIR), recursive=True)
+    observer.schedule(event_handler, str(PROJECT_ROOT), recursive=False)
+    observer.start()
+    
     # Open browser in a non-blocking thread
     def open_browser():
         try:
@@ -652,13 +677,16 @@ def dev_server(port: int, save: bool):
 
     try:
         while True:
-            time.sleep(0.5)
-            paths = watched_paths()
-            state = watch_state(*paths) if paths else ()
-            if state != last_state:
+            # Wait for rebuild event or timeout every 5 seconds
+            rebuild_event.wait(timeout=5.0)
+            if rebuild_event.is_set():
+                rebuild_event.clear()
                 rebuild()
     except KeyboardInterrupt:
+        observer.stop()
         server.shutdown()
+    finally:
+        observer.join()
 
 
 

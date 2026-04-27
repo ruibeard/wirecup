@@ -5,19 +5,19 @@ A minimal DSL for low-fidelity UI wireframes. Write `.cup` files and see live HT
 ## Quick Start
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install)
+curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install | bash
 ```
 
 That's it. Browser opens at `http://localhost:8765/`. Edit `.agents/.cup/*.cup` files and see changes live.
 
 ## Installation
 
-The one-liner install script does:
+The one-liner does:
 
 1. Downloads `wirecup` (executable Python script)
 2. Downloads `wirecup.css` (styling)
-3. Creates `.agents/.cup/` directory for your wireframes
-4. Runs `./wirecup .` to start the dev server
+3. Creates `.agents/.cup/` directory
+4. Runs `./wirecup .` to start dev server
 
 ## Usage
 
@@ -42,11 +42,9 @@ The one-liner install script does:
 ./wirecup --render < input.cup > output.html
 ```
 
-Read `.cup` from stdin, write HTML to stdout. Useful for build scripts.
+Read `.cup` from stdin, write HTML to stdout.
 
 ## Project Structure
-
-After install, you have:
 
 ```
 your-project/
@@ -54,14 +52,10 @@ your-project/
 ├── wirecup.css          # Styling
 └── .agents/
     └── .cup/            # Your wireframe files
-        ├── page1.cup    # Wireframe definition
+        ├── page1.cup
         ├── page2.cup
         └── _includes/   # Shared snippets
 ```
-
-## `.cup` Syntax
-
-See examples in the Wirecup repo's `.agents/.cup/` directory.
 
 ## Requirements
 
