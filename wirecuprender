@@ -25,6 +25,11 @@ BALLOT_NAV_ITEMS = (
     ("Selection", "room-selection"),
 )
 
+LINK_PREFIX = "/"
+LINK_SUFFIX = ""
+NAV_PREFIX = "/"
+NAV_SUFFIX = ""
+
 
 def page_wrap(support_css: str, inner: str, title: str) -> str:
     return f"""<!doctype html>
@@ -38,7 +43,7 @@ tailwind.config = {{
   theme: {{
     extend: {{
       fontFamily: {{
-        kalam: ["Kalam", "Comic Sans MS", "cursive"],
+        balsamiq: ["Balsamiq Sans", "Comic Sans MS", "cursive"],
       }},
     }},
   }},
@@ -49,7 +54,7 @@ tailwind.config = {{
 {support_css}
 </style>
 </head>
-<body class="min-h-screen p-8 md:p-12 font-kalam bg-stone-100">
+<body class="min-h-screen p-8 md:p-12 font-balsamiq bg-stone-100">
 <div class="page mx-auto bg-stone-50 p-8 border-2 border-stone-300 shadow-lg max-w-[900px] sketchy-page">
 {inner}
 </div>
@@ -57,7 +62,7 @@ tailwind.config = {{
 </html>"""
 
 
-def parse_link(content: str) -> tuple[str, str]:
+def parse_link(content: str, prefix: str | None = None, suffix: str | None = None) -> tuple[str, str]:
     if "|" not in content:
         return content.strip(), ""
     label, target = (part.strip() for part in content.split("|", 1))
@@ -69,13 +74,15 @@ def parse_link(content: str) -> tuple[str, str]:
         return label, target
     if target.endswith(".cup"):
         target = target[:-4]
-    return label, "/" + target.strip("/")
+    p = prefix if prefix is not None else LINK_PREFIX
+    s = suffix if suffix is not None else LINK_SUFFIX
+    return label, p + target.strip("/") + s
 
 
 def el_nav(content: str) -> str:
     items = []
     for item in content.split():
-        label, href = parse_link(item)
+        label, href = parse_link(item, NAV_PREFIX, NAV_SUFFIX)
         if href:
             items.append(f'<a href="{href}" class="hover:underline text-stone-800">{label}</a>')
         else:
@@ -97,7 +104,7 @@ def el_input(content: str) -> str:
 
 
 def el_button(content: str) -> str:
-    label, href = parse_link(content)
+    label, href = parse_link(content, LINK_PREFIX, LINK_SUFFIX)
     label = label or "OK"
     classes = "inline-block my-2 px-5 py-2 border-2 border-stone-700 rounded-md bg-stone-200 cursor-default shadow-sm text-stone-800 no-underline"
     if href:
@@ -155,7 +162,7 @@ def resolve_include(content: str) -> list[str]:
             if target == current:
                 items.append(label)
             else:
-                items.append(f"{label}|{target}")
+                items.append(f"{label}|{NAV_PREFIX}{target}{NAV_SUFFIX}")
         return [f"n {'  '.join(items)}"]
 
     include_path = INCLUDE_DIR / f"{name}.cup"
@@ -439,7 +446,33 @@ def main():
     parser = argparse.ArgumentParser(description="Watch .agents/.cup, render the latest .cup file, and open it in the browser.")
     parser.add_argument("-p", "--port", type=int, default=8765, help="Port to serve on")
     parser.add_argument("--save", action="store_true", help="Also write rendered HTML next to the input file")
+    parser.add_argument("--render", action="store_true", help="One-shot mode: read .cup from stdin, write HTML to stdout")
+    parser.add_argument("--title", default="Wirecup", help="Page title (one-shot mode)")
+    parser.add_argument("--css-file", type=Path, default=None, help="Path to CSS file (one-shot mode)")
+    parser.add_argument("--root", type=Path, default=None, help="Root directory for includes (one-shot mode)")
+    parser.add_argument("--link-prefix", default="/", help="Prefix for relative links (one-shot mode)")
+    parser.add_argument("--link-suffix", default="", help="Suffix for relative links (one-shot mode)")
+    parser.add_argument("--nav-prefix", default="/", help="Prefix for nav links (one-shot mode)")
+    parser.add_argument("--nav-suffix", default="", help="Suffix for nav links (one-shot mode)")
     args = parser.parse_args()
+
+    if args.render:
+        import sys
+        global LINK_PREFIX, LINK_SUFFIX, NAV_PREFIX, NAV_SUFFIX
+        LINK_PREFIX = args.link_prefix
+        LINK_SUFFIX = args.link_suffix
+        NAV_PREFIX = args.nav_prefix
+        NAV_SUFFIX = args.nav_suffix
+        cup_text = sys.stdin.read()
+        css_path = args.css_file or (ROOT / "wirecup.css")
+        support_css = css_path.read_text() if css_path.exists() else ""
+        if args.root:
+            global INCLUDE_DIR
+            INCLUDE_DIR = args.root / "_includes"
+        html = render(cup_text.splitlines(), support_css, args.title)
+        print(html)
+        return
+
     dev_server(args.port, save=args.save)
 
 
