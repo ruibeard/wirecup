@@ -292,8 +292,9 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         super().end_headers()
 
-class ReusableTCPServer(socketserver.TCPServer):
+class ReusableTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
+    daemon_threads = True
 
 def _rebuild():
     cup = cup_for_route(LiveReloadHandler.current_route)
