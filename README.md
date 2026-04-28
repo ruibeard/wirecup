@@ -8,40 +8,38 @@ Text-based wireframe language for rapid low-fidelity mockups.
 curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install | bash
 ```
 
-## Usage
+This downloads the binary and creates the following:
 
-### Watch & Preview
+```
+~/.wirecup/
+├── .agents/
+│   └── skills/
+│       └── wirecup/
+│           └── SKILL.md           # LLM skill for OpenCode
+└── wirecup                         # Compiled binary
+```
 
+**Start watching your project:**
 ```bash
 ./wirecup .
 ```
 
-Opens `http://localhost:8765` with live reload. Edit files in `.wirecup/` and see changes instantly.
+Opens `http://localhost:8765` with live reload.
 
-### Render Single File
+## How to Use
 
-```bash
-./wirecup input.cup
-```
+Tell your LLM: *"Use the wirecup skill to create a mockup for [description]"*
 
-Generates `input.html` in the same directory.
+The LLM writes `.cup` files to `.wirecup/`. Changes appear live at `http://localhost:8765`.
 
-### Preview in Browser
+## Commands
 
 ```bash
-./wirecup --web input.cup
+./wirecup .                    # Watch & preview (http://localhost:8765)
+./wirecup file.cup             # Render to static HTML
+./wirecup --web file.cup       # Preview in browser (temporary)
+./wirecup . -p 9000            # Custom port
 ```
-
-Opens rendered mockup in browser, closes when you press Enter.
-
-### Flags
-
-- `-p PORT` - custom port (default: 8765)
-- `--watch DIR` - watch custom directory
-
-## What It Does
-
-Watches `.agents/.cup/` for `.cup` files. Each file becomes a clickable route. Renders to HTML mockups instantly. Hot-reloads in browser.
 
 ## Syntax
 
@@ -51,8 +49,8 @@ One character per line = one UI element.
 h Heading
 t Paragraph text
 i Input field
-b Button|/next-page
-n nav link|/ about|/about
+b Button
+n Navigation link
 x Image placeholder
 s Select dropdown
 l List item
@@ -65,30 +63,6 @@ g Grid/table (indent rows)
 - Divider
 = Thick divider
 ```
-
-## Example
-
-Create `.wirecup/login.cup`:
-
-```
-h Login
-t Enter credentials
-i Email
-i Password
-b Sign In|dashboard
-```
-
-Run `./wirecup .` → visit `http://localhost:8765/` → click "login.cup" → see it rendered.
-
-Click "Sign In" button → navigates to `/dashboard` route.
-
-## Use With AI
-
-The install includes `.agents/skills/wirecup/SKILL.md` for OpenCode/LLM integration.
-
-Tell an LLM: *"Use the wirecup skill to write a mockup for [description]"*
-
-The LLM writes `.cup` files to `.wirecup/`. You see them render live at `http://localhost:8765`.
 
 ## Requirements
 
