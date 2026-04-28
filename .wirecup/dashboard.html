@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dashboard</title>
+<script>tailwind.config={theme:{extend:{fontFamily:{balsamiq:["Balsamiq Sans","Comic Sans MS","cursive"]}}}};</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+.sketchy-page {
+    transform: rotate(-0.3deg);
+}
+
+.sketchy-card {
+    transform: rotate(0.2deg);
+}
+
+.sketchy-divider {
+    transform: rotate(-0.1deg);
+}
+</style>
+</head>
+<body class="min-h-screen p-8 md:p-12 font-balsamiq bg-stone-100">
+<div class="page mx-auto bg-stone-50 p-8 border-2 border-stone-300 shadow-lg max-w-[900px] sketchy-page">
+<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-stone-500 text-[0.95em]"><span class="text-stone-800">Overview</span><span class="text-stone-800">Dashboard</span><a href="/product" class="hover:underline text-stone-800">Products</a><span class="text-stone-800">Settings</span></nav>
+<hr class="my-3 border-0 border-t-[3px] border-stone-500 sketchy-divider">
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">Team Dashboard</h2>
+<p class="my-1.5 text-[0.95em] text-stone-600">Quick view of work, notes, and open items.</p>
+<div class="flex gap-4 items-start flex-wrap"><div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card"><h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">Open Tasks</h2>
+<p class="my-1.5 text-[0.95em] text-stone-600">14</p>
+<a href="/tasks" class="inline-block my-2 px-5 py-2 border-2 border-stone-700 rounded-md bg-stone-200 cursor-default shadow-sm text-stone-800 no-underline">View Queue</a></div>
+<div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card"><h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">Team Note</h2>
+<div class="my-2.5 p-4 rounded-md border-2 text-[0.95em] bg-stone-100 border-stone-400 text-stone-700">Sprint review moved to Thursday afternoon.</div></div>
+<div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card"><h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">Release Status</h2>
+<span class="inline-block my-0.5 mx-1 px-3 py-0.5 text-[0.8em] font-bold rounded-xl border-2 bg-stone-100 border-stone-400 text-stone-600">Draft</span>
+<p class="my-1.5 text-[0.95em] text-stone-600">Mobile app cut planned for Friday.</p></div></div>
+<hr class="my-3 border-0 border-t-[2px] border-stone-400 sketchy-divider">
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">Activity</h2>
+<ul class="my-2 pl-5 list-disc"><li class="my-1 pl-4 list-disc text-stone-800">Alice uploaded the Q2 deck</li><li class="my-1 pl-4 list-disc text-stone-800">New bug report assigned to Platform</li><li class="my-1 pl-4 list-disc text-stone-800">Vendor contract waiting on signature</li></ul>
+<hr class="my-3 border-0 border-t-[2px] border-stone-400 sketchy-divider">
+<div class="my-2.5 overflow-x-auto"><table class="w-full border-collapse text-[0.9em]"><thead><tr><th class="px-3 py-2 border-2 border-stone-500 text-left bg-stone-200 font-bold">Area</th><th class="px-3 py-2 border-2 border-stone-500 text-left bg-stone-200 font-bold">Owner</th><th class="px-3 py-2 border-2 border-stone-500 text-left bg-stone-200 font-bold">Action</th></tr></thead><tbody><tr><td class="px-3 py-2 border-2 border-stone-500 ">Design System</td><td class="px-3 py-2 border-2 border-stone-500 ">Maya</td><td class="px-3 py-2 border-2 border-stone-500 "><a href="/design-system" class="inline-block my-2 px-5 py-2 border-2 border-stone-700 rounded-md bg-stone-200 cursor-default shadow-sm text-stone-800 no-underline">Open</a></td></tr><tr><td class="px-3 py-2 border-2 border-stone-500 bg-stone-50">Billing</td><td class="px-3 py-2 border-2 border-stone-500 bg-stone-50">Arun</td><td class="px-3 py-2 border-2 border-stone-500 bg-stone-50"><a href="/billing" class="inline-block my-2 px-5 py-2 border-2 border-stone-700 rounded-md bg-stone-200 cursor-default shadow-sm text-stone-800 no-underline">Review</a></td></tr><tr><td class="px-3 py-2 border-2 border-stone-500 ">Website</td><td class="px-3 py-2 border-2 border-stone-500 ">Lena</td><td class="px-3 py-2 border-2 border-stone-500 "><a href="/website" class="inline-block my-2 px-5 py-2 border-2 border-stone-700 rounded-md bg-stone-200 cursor-default shadow-sm text-stone-800 no-underline">View</a></td></tr></tbody></table></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>product</title>
+<script>tailwind.config={theme:{extend:{fontFamily:{balsamiq:["Balsamiq Sans","Comic Sans MS","cursive"]}}}};</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+.sketchy-page {
+    transform: rotate(-0.3deg);
+}
+
+.sketchy-card {
+    transform: rotate(0.2deg);
+}
+
+.sketchy-divider {
+    transform: rotate(-0.1deg);
+}
+</style>
+</head>
+<body class="min-h-screen p-8 md:p-12 font-balsamiq bg-stone-100">
+<div class="page mx-auto bg-stone-50 p-8 border-2 border-stone-300 shadow-lg max-w-[900px] sketchy-page">
+<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-stone-500 text-[0.95em]"><a href="/dashboard" class="hover:underline text-stone-800">Dashboard</a><span class="text-stone-800">Catalog</span><a href="/cart" class="hover:underline text-stone-800">Cart</a></nav>
+<hr class="my-3 border-0 border-t-[3px] border-stone-500 sketchy-divider">
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">Vintage Camera</h2>
+<p class="my-1.5 text-[0.95em] text-stone-600">Internal product page for a hardware listing.</p>
+<div class="flex gap-4 items-start flex-wrap"><div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card"><div class="flex items-center justify-center my-1.5 min-h-20 min-w-[80px] bg-stone-200 border-2 border-stone-400 text-stone-400 text-[0.8em]" style="border-style:dashed">Product Image</div></div>
+<div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card"><p class="my-1.5 text-[0.95em] text-stone-600">Price</p>
+<div class="inline-block min-w-[200px] my-1.5 p-2.5 border-2 border-stone-500 rounded bg-neutral-50 text-stone-400 italic">$299</div>
+<p class="my-1.5 text-[0.95em] text-stone-600">Condition</p>
+<div class="relative inline-block my-1.5 pr-7 pl-2.5 py-2 border-2 border-stone-500 rounded bg-neutral-50">Excellent<span class="absolute right-2 top-1/2 -translate-y-1/2">▾</span></div>
+<span class="inline-block my-0.5 mx-1 px-3 py-0.5 text-[0.8em] font-bold rounded-xl border-2 bg-stone-100 border-stone-400 text-stone-600">In Stock</span>
+<a href="/cart" class="inline-block my-2 px-5 py-2 border-2 border-stone-700 rounded-md bg-stone-200 cursor-default shadow-sm text-stone-800 no-underline">Add to Cart</a></div></div>
+<hr class="my-3 border-0 border-t-[2px] border-stone-400 sketchy-divider">
+<h2 class="text-[1.6em] font-bold my-3 tracking-tight text-stone-800">Details</h2>
+<p class="my-1.5 text-[0.95em] text-stone-600">Compact 35mm camera body with carrying case and two lenses.</p>
+<p class="my-1.5 text-[0.95em] text-stone-600">Shipping</p>
+<div class="inline-block min-w-[200px] my-1.5 p-2.5 border-2 border-stone-500 rounded bg-neutral-50 text-stone-400 italic">Standard delivery</div>
+<label class="flex items-center gap-2 my-1.5 text-[0.95em] text-stone-800"><span class="inline-block w-[18px] h-[18px] border-2 border-stone-600 rounded-[3px] shrink-0"></span><span>Include gift wrap</span></label>
+<hr class="my-3 border-0 border-t-[2px] border-stone-400 sketchy-divider">
+<div class="my-2.5 overflow-x-auto"><table class="w-full border-collapse text-[0.9em]"><thead><tr><th class="px-3 py-2 border-2 border-stone-500 text-left bg-stone-200 font-bold">Spec</th><th class="px-3 py-2 border-2 border-stone-500 text-left bg-stone-200 font-bold">Value</th></tr></thead><tbody><tr><td class="px-3 py-2 border-2 border-stone-500 ">Finish</td><td class="px-3 py-2 border-2 border-stone-500 ">Black</td></tr><tr><td class="px-3 py-2 border-2 border-stone-500 bg-stone-50">Lens</td><td class="px-3 py-2 border-2 border-stone-500 bg-stone-50">50mm</td></tr><tr><td class="px-3 py-2 border-2 border-stone-500 ">Warranty</td><td class="px-3 py-2 border-2 border-stone-500 ">30 days</td></tr></tbody></table></div>
+</div>
+</body>
+</html>
