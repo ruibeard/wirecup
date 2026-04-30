@@ -6,4 +6,4 @@ Compact `.cup` DSL for low-fidelity UI wireframes.
 ./wirecup .
 ```
 
-Serves the `.agents/.cup` preview from memory, watches the project, and opens it in the browser.
+Serves the `.wirecup` preview from memory, watches the project, and opens it in the browser.

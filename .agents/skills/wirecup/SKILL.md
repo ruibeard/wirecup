@@ -27,7 +27,7 @@ Run the preview server:
 
 What it does:
 
-- watches `.agents/.cup/*.cup`
+- watches `/.wirecup/*.cup`
 - opens the browser
 - serves the current mock at `/`
 - hot reloads when `.cup` files or `wirecup.css` change
@@ -36,17 +36,17 @@ What it does:
 Where to write mocks:
 
 ```bash
-.agents/.cup/login.cup
-.agents/.cup/dashboard.cup
-.agents/.cup/product.cup
+.wirecup/login.cup
+.wirecup/dashboard.cup
+.wirecup/product.cup
 ```
 
 Route behavior:
 
 - the newest edited `.cup` file becomes the default page at `/`
-- route `/login` renders `.agents/.cup/login.cup`
-- route `/dashboard` renders `.agents/.cup/dashboard.cup`
-- route `/product` renders `.agents/.cup/product.cup`
+- route `/login` renders `.wirecup/login.cup`
+- route `/dashboard` renders `.wirecup/dashboard.cup`
+- route `/product` renders `.wirecup/product.cup`
 
 Optional:
 
@@ -122,7 +122,7 @@ This renders the shared ballot navigation and leaves the current route non-click
 
 Custom snippets:
 
-- create `.agents/.cup/_includes/name.cup`
+- create `.wirecup/_includes/name.cup`
 - reference it with `u name arg1 arg2`
 - use `$1`, `$2`, and `$*` inside the include file
 
