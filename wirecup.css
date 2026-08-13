@@ -8,6 +8,12 @@
     transform: rotate(0.2deg);
 }
 
+/* A card heading is a sub-heading. Keep it quieter than the page heading. */
+.card h2 {
+    font-size: 1.15em;
+    margin-top: 0;
+}
+
 .sketchy-divider {
     transform: rotate(-0.1deg);
 }

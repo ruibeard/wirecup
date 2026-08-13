@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "wirecup": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/mcp/dist/index.js"
+      ]
+    }
+  }
+}

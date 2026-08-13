@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 
-import argparse, contextlib, html, http.server, os, re, socketserver
+import argparse, contextlib, html, http.server, logging, os, re, socketserver
 import sys, threading, time, urllib.parse, webbrowser
 from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+logger = logging.getLogger("wirecup")
 
 APP_ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
 PROJECT_ROOT = Path.cwd()
 CUP_DIR = PROJECT_ROOT / ".wirecup"
 INCLUDE_DIR = CUP_DIR / "_includes"
 LINK_PREFIX = LINK_SUFFIX = NAV_PREFIX = NAV_SUFFIX = None  # set by preview_links()
+FONT_URL = "https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
 def _css() -> str:
     p = PROJECT_ROOT / "wirecup.css"
@@ -23,11 +26,12 @@ def page_wrap(css: str, inner: str, title: str) -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
-<script>tailwind.config={{theme:{{extend:{{fontFamily:{{balsamiq:["Balsamiq Sans","Comic Sans MS","cursive"]}}}}}}}};</script>
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="{FONT_URL}" rel="stylesheet">
+<style>body{{font-family:'Balsamiq Sans','Comic Sans MS',cursive,sans-serif;}}</style>
 <style>{css}</style>
 </head>
-<body class="min-h-screen p-8 md:p-12 font-balsamiq bg-stone-100">
+<body class="min-h-screen p-8 md:p-12 bg-stone-100">
 <div class="page mx-auto bg-stone-50 p-8 border-2 border-stone-300 shadow-lg max-w-[900px] sketchy-page">
 {inner}
 </div>
@@ -52,7 +56,7 @@ def el_nav(content):
     def _item(item):
         label, href = parse_link(item, NAV_PREFIX or "/", NAV_SUFFIX or "")
         return f'<a href="{href}" class="hover:underline text-stone-800">{label}</a>' if href else f'<span class="text-stone-800">{label}</span>'
-    return f'<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-stone-500 text-[0.95em]">{"".join(_item(i) for i in content.split())}</nav>'
+    return f'<nav class="flex gap-6 pb-2 mb-4 border-b-2 border-stone-500 text-[0.95em]">{"".join(_item(i) for i in split_cells(content))}</nav>'
 
 def el_button(content):
     label, href = parse_link(content)
@@ -94,16 +98,22 @@ def resolve_include(content):
         tmpl = tmpl.replace(k, v)
     return tmpl.splitlines()
 
+CELL_ELS = "vbsik"  # element types allowed inside a grid cell
+
+def render_cell(cell):
+    if cell and cell[0] in CELL_ELS and (len(cell) == 1 or cell[1] == " "):
+        return SIMPLE_ELS[cell[0]](cell[2:] if len(cell) > 2 else "")
+    return cell
+
 def render_table(header_line, rows):
     headers = split_cells(header_line)
     head = "".join(f'<th class="px-3 py-2 border-2 border-stone-500 text-left bg-stone-200 font-bold">{c}</th>' for c in headers)
     body = []
     for i, row in enumerate(rows):
         bg = "bg-stone-50" if i % 2 else ""
-        cells = []
-        for cell in split_cells(row):
-            inner = el_badge(cell[2:]) if cell.startswith("v ") else el_button(cell[2:]) if cell.startswith("b ") else cell
-            cells.append(f'<td class="px-3 py-2 border-2 border-stone-500 {bg}">{inner}</td>')
+        cells = [render_cell(c) for c in split_cells(row)]
+        cells += [""] * (len(headers) - len(cells))  # keep every row the full width
+        cells = [f'<td class="px-3 py-2 border-2 border-stone-500 {bg}">{c}</td>' for c in cells]
         body.append(f'<tr>{"".join(cells)}</tr>')
     return f'<div class="my-2.5 overflow-x-auto"><table class="w-full border-collapse text-[0.9em]"><thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>'
 
@@ -122,6 +132,34 @@ def collect_children(lines, index, level):
         children.append(line)
         index += 1
     return children, index
+
+BLOCK_ELS = "ucrgl"
+
+def validate_cup_file(lines):
+    """Check the first character of every element line.
+
+    Lines indented under a `g` are table rows, not elements. They are skipped.
+    """
+    errors = []
+    grid_levels = []
+    for i, line in enumerate(lines, 1):
+        s = line.lstrip()
+        if not s:
+            continue
+        level = indent_level(line)
+        while grid_levels and level <= grid_levels[-1]:
+            grid_levels.pop()
+        if grid_levels:
+            continue
+        if s in ("-", "="):
+            continue
+        kind = s[0]
+        if kind == "g":
+            grid_levels.append(level)
+            continue
+        if kind not in SIMPLE_ELS and kind not in BLOCK_ELS:
+            errors.append(f"Line {i}: Unknown element type '{kind}'")
+    return errors
 
 def render(lines, css, title):
     def render_lines(block):
@@ -152,7 +190,7 @@ def render(lines, css, title):
                     parts.append(render_table(content, children))
                 else:
                     inner = render_lines(children)
-                    parts.append(f'<div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card">{inner}</div>' if kind == "c" else f'<div class="flex gap-4 items-start flex-wrap">{inner}</div>')
+                    parts.append(f'<div class="card my-3 p-4 border-2 border-stone-500 rounded-md bg-stone-50 sketchy-card flex-1 min-w-[240px]">{inner}</div>' if kind == "c" else f'<div class="flex gap-4 items-stretch flex-wrap">{inner}</div>')
             else:
                 raise ValueError(f"Unknown Wirecup element type {kind!r}: {s}")
         flush()
@@ -206,9 +244,22 @@ def preview_links():
     finally: LINK_PREFIX = LINK_SUFFIX = NAV_PREFIX = NAV_SUFFIX = None
 
 def render_cup_file(cup_path):
-    with preview_links():
-        out = render(cup_path.read_text().splitlines(), _css(), cup_path.stem)
-    return out.replace("</body>", IFRAME_NAV_SCRIPT + RELOAD_SCRIPT + "</body>")
+    try:
+        content = cup_path.read_text()
+        lines = content.splitlines()
+
+        errors = validate_cup_file(lines)
+        if errors:
+            error_msg = "<br>".join(html.escape(e) for e in errors)
+            error_html = page_wrap(_css(), f'<div class="p-4 bg-red-50 border-2 border-red-300 rounded text-red-800"><h2 class="font-bold mb-2">Wirecup Error</h2><pre class="text-sm">{error_msg}</pre></div>', cup_path.stem)
+            return error_html.replace("</body>", RELOAD_SCRIPT + "</body>")
+
+        with preview_links():
+            out = render(lines, _css(), cup_path.stem)
+        return out.replace("</body>", IFRAME_NAV_SCRIPT + RELOAD_SCRIPT + "</body>")
+    except Exception as e:
+        error_html = page_wrap(_css(), f'<div class="p-4 bg-red-50 border-2 border-red-300 rounded text-red-800"><h2 class="font-bold mb-2">Render Error</h2><pre class="text-sm">{html.escape(str(e))}</pre></div>', cup_path.stem)
+        return error_html.replace("</body>", RELOAD_SCRIPT + "</body>")
 
 def preview_shell(query=""):
     files = rel_files()
@@ -237,7 +288,7 @@ def preview_shell(query=""):
 <style>body{{font-family:'Balsamiq Sans',sans-serif;}}</style></head>
 <body class="m-0 bg-stone-100 text-stone-800">
 <div class="flex h-screen">
-  <aside class="w-52 h-full overflow-y-auto border-r-2 border-stone-300 bg-stone-200 p-3 flex flex-col">
+  <aside class="w-64 h-full overflow-y-auto border-r-2 border-stone-300 bg-stone-200 p-3 flex flex-col">
     <h1 class="text-lg font-semibold mb-3 text-stone-700">Wirecup</h1>
     <div class="space-y-1 flex-1">{"".join(rows)}</div>
     <div class="pt-4 border-t border-stone-300"><span class="text-xs text-stone-500">{html.escape(str(PROJECT_ROOT))}</span></div>
@@ -250,6 +301,7 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
     html = cup_name = ""
     current_route = "/"
     sse_clients = []
+    server_port = 8765
 
     def _send_html(self, body):
         self.send_response(200)
@@ -258,9 +310,31 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_json(self, data):
+        import json
+        body = json.dumps(data).encode()
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         parsed = urllib.parse.urlsplit(self.path)
         path = parsed.path
+        if path == "/api/ready":
+            return self._send_json({
+                "ready": True,
+                "port": self.server_port,
+                "project": str(PROJECT_ROOT),
+                "url": f"http://localhost:{self.server_port}/"
+            })
+        if path == "/api/files":
+            out = []
+            for f in rel_files():
+                text = (CUP_DIR / f).read_text()
+                out.append({"file": f, "bytes": len(text), "errors": validate_cup_file(text.splitlines())})
+            return self._send_json({"project": str(PROJECT_ROOT), "dir": str(CUP_DIR), "files": out})
         if path == "/__wirecup_events":
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
@@ -288,6 +362,17 @@ class LiveReloadHandler(http.server.SimpleHTTPRequestHandler):
             return self._send_html((preview_shell() if path == "/" else self.html).encode())
         super().do_GET()
 
+    def do_POST(self):
+        if urllib.parse.urlsplit(self.path).path == "/api/validate":
+            size = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(size).decode("utf-8", "replace")
+            errors = validate_cup_file(body.splitlines())
+            return self._send_json({"ok": not errors, "errors": errors})
+        self.send_error(404, "Not found")
+
+    def log_message(self, *args):
+        logger.debug("%s - %s", self.address_string(), args[0] % args[1:])
+
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
         super().end_headers()
@@ -305,7 +390,7 @@ def _rebuild():
         LiveReloadHandler.html = render_cup_file(cup)
         LiveReloadHandler.cup_name = cup.name
 
-def dev_server(port, save):
+def dev_server(port, save, no_browser=False):
     ev = threading.Event(); ev.set()
 
     class Watcher(FileSystemEventHandler):
@@ -319,7 +404,7 @@ def dev_server(port, save):
         _rebuild()
         cup = cup_for_route(LiveReloadHandler.current_route)
         if save and cup: cup.with_suffix(".html").write_text(LiveReloadHandler.html)
-        print(f"Reloaded {LiveReloadHandler.cup_name or '.wirecup'}", file=sys.stderr, flush=True)
+        logger.debug(f"Reloaded {LiveReloadHandler.cup_name or '.wirecup'}")
         dead = []
         for w in LiveReloadHandler.sse_clients:
             try: w.write(b"data: reload\n\n"); w.flush()
@@ -327,18 +412,22 @@ def dev_server(port, save):
         for w in dead: LiveReloadHandler.sse_clients.remove(w)
 
     CUP_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Watching {CUP_DIR}")
     _rebuild()
     os.chdir(CUP_DIR)
     server = ReusableTCPServer(("", port), LiveReloadHandler)
+    LiveReloadHandler.server_port = port
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://localhost:{port}/"
+    logger.info(f"Server ready at {url}")
     print(url, file=sys.stderr, flush=True)
     obs = Observer()
     h = Watcher()
     obs.schedule(h, str(CUP_DIR), recursive=True)
     obs.schedule(h, str(PROJECT_ROOT), recursive=False)
     obs.start()
-    threading.Thread(target=lambda: webbrowser.open(url), daemon=True).start()
+    if not no_browser:
+        threading.Thread(target=lambda: webbrowser.open(url), daemon=True).start()
     try:
         while True:
             ev.wait(5.0)
@@ -348,19 +437,33 @@ def dev_server(port, save):
     finally:
         obs.join()
 
+def get_version():
+    version_file = APP_ROOT / "VERSION"
+    if version_file.exists():
+        return version_file.read_text().strip()
+    return "dev"
+
 def main():
     p = argparse.ArgumentParser(description="Wirecup wireframe renderer")
     p.add_argument("target", nargs="?", default=".")
     p.add_argument("--web", action="store_true")
     p.add_argument("-p", "--port", type=int, default=8765)
+    p.add_argument("--no-browser", action="store_true")
+    p.add_argument("--verbose", "-v", action="store_true", help="Enable debug logging")
+    p.add_argument("--version", action="version", version=f"wirecup {get_version()}")
     args = p.parse_args()
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(levelname)s: %(message)s"
+    )
     target = Path(args.target).resolve()
     if target.is_dir():
         global PROJECT_ROOT, CUP_DIR, INCLUDE_DIR
         PROJECT_ROOT = target
         CUP_DIR = target / ".wirecup"
         INCLUDE_DIR = CUP_DIR / "_includes"
-        dev_server(args.port, save=False)
+        dev_server(args.port, save=False, no_browser=args.no_browser)
     elif target.is_file() and target.suffix == ".cup":
         css_p = target.parent / "wirecup.css"
         css = css_p.read_text() if css_p.exists() else _css()

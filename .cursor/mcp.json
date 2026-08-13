@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "wirecup": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/mcp/dist/index.js"
+      ],
+      "env": {
+        "WIRECUP_ROOT": "${workspaceFolder}"
+      }
+    }
+  }
+}

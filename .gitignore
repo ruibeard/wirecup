@@ -7,3 +7,6 @@ dist/*
 !dist/wirecup
 .DS_Store
 .venv/
+MenuBarApp/.build/
+
+mcp/dist/
