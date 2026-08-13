@@ -7,18 +7,15 @@ source .venv/bin/activate && pyinstaller wirecup.spec --noconfirm --distpath dis
 echo "Building WirecupBar menu bar app..."
 ( cd MenuBarApp && swift build -c release )
 
-# Package as proper .app bundle so it launches without a Terminal window
-# Support both Apple Silicon and Intel Macs
-if [ -d "MenuBarApp/.build/arm64-apple-macosx/release" ]; then
-  BINARY="MenuBarApp/.build/arm64-apple-macosx/release/WirecupBar"
-  APP="MenuBarApp/.build/arm64-apple-macosx/release/WirecupBar.app"
-else
-  BINARY="MenuBarApp/.build/release/WirecupBar"
-  APP="MenuBarApp/.build/release/WirecupBar.app"
-fi
+# Package as a proper .app bundle so it launches without a Terminal window,
+# and install it to /Applications so it survives `.build` being wiped.
+BINARY="$(cd MenuBarApp && swift build -c release --show-bin-path)/WirecupBar"
+APP="/Applications/WirecupBar.app"
 
+rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
 cp "$BINARY" "$APP/Contents/MacOS/"
+codesign --force --sign - "$APP"
 
 cat > "$APP/Contents/Info.plist" <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -43,4 +40,4 @@ cat > "$APP/Contents/Info.plist" <<'EOF'
 </plist>
 EOF
 
-echo "Done: dist/wirecup + MenuBarApp/.build/release/WirecupBar.app"
+echo "Done: dist/wirecup + /Applications/WirecupBar.app"

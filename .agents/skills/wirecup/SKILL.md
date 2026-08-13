@@ -10,34 +10,34 @@ Wirecup is a tiny DSL for low-fidelity UI mockups.
 You write `.cup` source. The wirecup server renders it. Never write the HTML
 yourself, and never ask a tool to hand HTML back to you.
 
-## With the MCP server
+## Running it
 
-Preferred. The tools are small on purpose.
+Start the server once per project:
+
+```bash
+wirecup .
+```
+
+That watches `.wirecup/*.cup` and `wirecup.css`, serves the preview on port
+8765, and reloads the browser on every change.
+
+## The MCP server
+
+The same binary serves MCP on stdin/stdout:
+
+```bash
+wirecup . --mcp
+```
+
+Two tools. Use your normal file tools to read, list or delete mocks.
 
 | Tool | Use |
 |------|-----|
-| `spec` | the whole DSL in one block |
-| `list` | the mocks in `.wirecup`, with size and errors |
-| `read` | the `.cup` source of one mock |
+| `spec` | this whole spec in one block |
 | `write` | save a mock, get its preview URL |
-| `preview` | start the server, get the URL |
-| `remove` | delete a mock |
 
-`write` checks the source first. Bad source is rejected and not saved.
-It starts the server if none is running.
-
-Point the server at the project with `WIRECUP_ROOT`. Change the port with
-`WIRECUP_PORT`. The default port is 8765.
-
-## Without the MCP server
-
-```bash
-./wirecup .
-```
-
-That watches `.wirecup/*.cup` and `wirecup.css`, serves the preview, and
-reloads the browser on every change. `./wirecup . --save` also writes `.html`
-files next to the `.cup` files.
+`write` checks the source with the same parser that draws it. Bad source is
+reported with line numbers and never reaches disk.
 
 Write mocks to `.wirecup/name.cup`. Route `/name` renders `.wirecup/name.cup`.
 The newest edited file is the default page at `/`.
@@ -45,7 +45,7 @@ The newest edited file is the default page at `/`.
 If the project has no `wirecup` binary, fetch one:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install | bash
 ```
 
 ## Spec

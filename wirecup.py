@@ -437,6 +437,104 @@ def dev_server(port, save, no_browser=False):
     finally:
         obs.join()
 
+SPEC = """Wirecup: one character starts a line and picks the element. The rest is content.
+
+n nav       h heading    t text      i input     b button
+x image     s select     l list      v badge     a alert
+k checkbox  u include    c card      r row       g grid
+-  thin rule            =  thick rule
+
+Links: "b Label|target", same for nav items. "target" or "target.cup" becomes a
+route. "http..." and "/path" stay as written. No "|target" means no link.
+Nav items and grid cells split on 2 or more spaces, so a label can hold single spaces.
+c, r and g take indented children. Indentation makes the structure.
+g: the g line is the header row. Indented lines below it are data rows, not elements.
+   A cell may start with v, b, s, i or k to put that element in the cell.
+   Short rows are padded out to the header width.
+Consecutive l lines become one list.
+Includes: put snippets in .wirecup/_includes/name.cup, call "u name arg1", use $1 $2 $*.
+Badges and alerts are neutral. Colour carries no meaning.
+An unknown first character is an error."""
+
+MCP_TOOLS = [
+    {
+        "name": "spec",
+        "description": "The whole Wirecup DSL in one short block. Read this before writing a mock.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "write",
+        "description": (
+            "Save a mock to .wirecup/<name>.cup and return its preview URL. "
+            "The wirecup server renders it; no HTML comes back through this tool. "
+            "Invalid source is rejected and not saved."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Mock name, without the .cup suffix"},
+                "cup": {"type": "string", "description": "Wirecup DSL source. Call spec if unsure."},
+            },
+            "required": ["name", "cup"],
+        },
+    },
+]
+
+def mcp_write(name, cup, port):
+    stem = str(name).strip().removesuffix(".cup")
+    if not re.fullmatch(r"[\w-]+", stem):
+        return f"Bad name {name!r}. Use letters, digits, - and _."
+    errors = validate_cup_file(cup.splitlines())
+    if errors:
+        return f"Not saved. {len(errors)} error(s):\n" + "\n".join(errors)
+    path = CUP_DIR / f"{stem}.cup"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(cup if cup.endswith("\n") else cup + "\n")
+    return f"ok  {path}\nhttp://localhost:{port}/__wirecup?file={stem}.cup"
+
+def mcp_server(port):
+    """Speak MCP over stdin/stdout. Same process as the renderer, so the
+    source is checked by the very parser that will draw it."""
+    import json
+
+    def reply(msg):
+        sys.stdout.write(json.dumps(msg) + "\n")
+        sys.stdout.flush()
+
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            req = json.loads(line)
+        except ValueError:
+            continue
+        rid, method = req.get("id"), req.get("method")
+        if rid is None:
+            continue  # a notification wants no answer
+        if method == "initialize":
+            result = {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {"tools": {}},
+                "serverInfo": {"name": "wirecup", "version": get_version()},
+            }
+        elif method == "tools/list":
+            result = {"tools": MCP_TOOLS}
+        elif method == "tools/call":
+            params = req.get("params") or {}
+            args = params.get("arguments") or {}
+            if params.get("name") == "spec":
+                out = SPEC
+            elif params.get("name") == "write":
+                out = mcp_write(args.get("name", ""), args.get("cup", ""), port)
+            else:
+                out = f"Unknown tool {params.get('name')!r}"
+            result = {"content": [{"type": "text", "text": out}]}
+        else:
+            reply({"jsonrpc": "2.0", "id": rid, "error": {"code": -32601, "message": f"No method {method}"}})
+            continue
+        reply({"jsonrpc": "2.0", "id": rid, "result": result})
+
 def get_version():
     version_file = APP_ROOT / "VERSION"
     if version_file.exists():
@@ -447,6 +545,7 @@ def main():
     p = argparse.ArgumentParser(description="Wirecup wireframe renderer")
     p.add_argument("target", nargs="?", default=".")
     p.add_argument("--web", action="store_true")
+    p.add_argument("--mcp", action="store_true", help="Serve the MCP tools on stdin/stdout")
     p.add_argument("-p", "--port", type=int, default=8765)
     p.add_argument("--no-browser", action="store_true")
     p.add_argument("--verbose", "-v", action="store_true", help="Enable debug logging")
@@ -463,6 +562,8 @@ def main():
         PROJECT_ROOT = target
         CUP_DIR = target / ".wirecup"
         INCLUDE_DIR = CUP_DIR / "_includes"
+        if args.mcp:
+            return mcp_server(args.port)
         dev_server(args.port, save=False, no_browser=args.no_browser)
     elif target.is_file() and target.suffix == ".cup":
         css_p = target.parent / "wirecup.css"
