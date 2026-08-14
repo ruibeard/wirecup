@@ -1,15 +1,25 @@
 #!/bin/bash
 set -euo pipefail
 
+# Other machines only. On this Mac, use the clone at /Users/ruibeard/code/wirecup.
 base_url="https://raw.githubusercontent.com/ruibeard/wirecup/main"
+skill_url="$base_url/.agents/skills/wirecup/SKILL.md"
 
-mkdir -p .wirecup .agents/skills/wirecup
+mkdir -p .wirecup
+
 curl -fsSL "$base_url/dist/wirecup" -o wirecup
 curl -fsSL "$base_url/wirecup.css" -o wirecup.css
-curl -fsSL "$base_url/.agents/skills/wirecup/SKILL.md" -o .agents/skills/wirecup/SKILL.md
-
 chmod +x wirecup
 
-printf 'Installed Wirecup. Run: ./wirecup .\n'
+mkdir -p .agents/skills/wirecup .wirecup
+curl -fsSL "$skill_url" -o .agents/skills/wirecup/SKILL.md
 
+if [[ ! -f AGENTS.md ]] || ! grep -q 'Wirecup' AGENTS.md; then
+  curl -fsSL "$base_url/AGENTS.md" -o AGENTS.md
+fi
+if [[ ! -f CLAUDE.md ]]; then
+  printf 'Read `AGENTS.md`. Use the wirecup skill for UI mocks. Never write HTML.\n' > CLAUDE.md
+fi
+
+printf 'Installed Wirecup. Read AGENTS.md. Preview: http://localhost:8765\n'
 ./wirecup .

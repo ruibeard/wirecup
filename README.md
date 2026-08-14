@@ -1,49 +1,31 @@
 # Wirecup
 
-Text-based wireframe language for rapid low-fidelity mockups.
+A tiny `.cup` language for low-fidelity UI mocks. Agents write text. The server draws it. Nobody writes HTML.
 
-## Install
+## This machine
+
+Repo: `/Users/ruibeard/code/wirecup`
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ruibeard/wirecup/main/install | bash
+/Users/ruibeard/code/wirecup/dist/wirecup .
 ```
 
-This downloads the binary and creates the following:
+Opens http://localhost:8765 and reloads when `.wirecup/*.cup` changes.
 
-```
-~/.wirecup/
-├── .agents/
-│   └── skills/
-│       └── wirecup/
-│           └── SKILL.md           # LLM skill for OpenCode
-└── wirecup                         # Compiled binary
-```
-
-**Start watching your project:**
-```bash
-./wirecup .
-```
-
-Opens `http://localhost:8765` with live reload.
-
-## How to Use
-
-Tell your LLM: *"Use the wirecup skill to create a mockup for [description]"*
-
-The LLM writes `.cup` files to `.wirecup/`. Changes appear live at `http://localhost:8765`.
+Agents: read `AGENTS.md`, then the skill.
 
 ## Commands
 
 ```bash
-./wirecup .                    # Watch & preview (http://localhost:8765)
-./wirecup file.cup             # Render to static HTML
-./wirecup --web file.cup       # Preview in browser (temporary)
-./wirecup . -p 9000            # Custom port
+./dist/wirecup .              # watch and preview
+./dist/wirecup file.cup       # render one file to HTML
+./dist/wirecup --web file.cup # one-off browser preview
+./dist/wirecup . -p 9000      # custom port
 ```
 
-## Syntax
+## Cheat sheet
 
-One character per line = one UI element.
+One character starts the line:
 
 ```
 h Heading
@@ -52,22 +34,20 @@ i Input field
 b Button
 n Navigation link
 x Image placeholder
-s Select dropdown
+s Select placeholder
 l List item
 v Badge
 a Alert box
 k Checkbox
 c Card (indent children)
-r Row/flex (indent children)
-g Grid/table (indent rows)
-- Divider
+r Row (indent children)
+g Grid (indent rows)
+- Thin divider
 = Thick divider
 ```
 
-## Requirements
-
-- macOS (arm64)
+Full rules are in the skill, not here.
 
 ## License
 
-MIT
+MIT. macOS arm64.

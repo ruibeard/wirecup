@@ -1,9 +1,21 @@
 # Wirecup
 
-Compact `.cup` DSL for low-fidelity UI wireframes.
+Write `.cup` files. The server draws them. Never write HTML.
+
+Repo: `/Users/ruibeard/code/wirecup`
+
+## In another local project
+
+1. Read `/Users/ruibeard/code/wirecup/.agents/skills/wirecup/SKILL.md`
+2. Run `/Users/ruibeard/code/wirecup/dist/wirecup .`
+3. Save screens as `.wirecup/name.cup`
+
+Do not clone this repo. It is already here.
+
+## In this repo
 
 ```bash
-./wirecup .
+./dist/wirecup .
 ```
 
-Serves the `.wirecup` preview from memory, watches the project, and opens it in the browser.
+Preview: http://localhost:8765
