@@ -184,6 +184,8 @@ class WirecupManager: ObservableObject {
             return
         }
 
+        stop()
+
         let proc = Process()
         proc.executableURL = URL(fileURLWithPath: binaryPath)
         proc.arguments = [expandedPath, "--port", "\(effectivePort)", "--no-browser"]
@@ -212,12 +214,13 @@ class WirecupManager: ObservableObject {
     }
 
     private func pollApiReady(attempt: Int = 0) {
-        let maxAttempts = 30
+        guard process?.isRunning == true else { return }
+
         let url = URL(string: "http://localhost:\(effectivePort)/api/ready")!
         var request = URLRequest(url: url)
         request.timeoutInterval = 1.0
 
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+        URLSession.shared.dataTask(with: request) { [weak self] data, _, _ in
             guard let self = self else { return }
 
             if let data = data,
@@ -232,26 +235,30 @@ class WirecupManager: ObservableObject {
                 return
             }
 
-            if attempt < maxAttempts {
+            if attempt < 50 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     self.pollApiReady(attempt: attempt + 1)
                 }
             } else {
                 DispatchQueue.main.async {
-                    self.isRunning = true
-                    self.statusText = "\(self.currentProjectName) — port \(self.effectivePort)"
-                    self.url = "http://localhost:\(self.effectivePort)/"
-                    self.openPreview()
+                    self.statusText = "Did not come up"
+                    self.stop()
                 }
             }
         }.resume()
     }
 
     func stop() {
-        guard let proc = process, proc.isRunning else { return }
-        proc.terminationHandler = nil
-        proc.terminate()
+        if let proc = process, proc.isRunning {
+            proc.terminationHandler = nil
+            proc.terminate()
+        }
         process = nil
+        let killer = Process()
+        killer.executableURL = URL(fileURLWithPath: "/usr/bin/pkill")
+        killer.arguments = ["-f", "wirecup.*--port \(effectivePort)"]
+        try? killer.run()
+        killer.waitUntilExit()
         isRunning = false
         statusText = "Stopped"
     }
